@@ -14,11 +14,11 @@
   <!-- catalog-public:badges-start -->
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-supported-dark.svg?v=776cefe8">
-    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-supported-light.svg?v=776cefe8" alt="labs: 15 supported" height="20">
+    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-supported-light.svg?v=1ff3e293" alt="labs: 15 supported" height="20">
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-experimental-dark.svg?v=2281a510">
-    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-experimental-light.svg?v=2281a510" alt="labs: 5 experimental" height="20">
+    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-experimental-light.svg?v=69f596b2" alt="labs: 5 experimental" height="20">
   </picture>
 <!-- catalog-public:badges-end -->
   <picture>
