@@ -9,7 +9,11 @@ on:
       - "scripts/validate_issue_forms.py"
       - "scripts/fixtures/issue_form_labels.json"
       - "scripts/fixtures/ci_routing_matrix.json"
+      - "scripts/fixtures/m0_exit_criteria.json"
+      - "scripts/fixtures/m0_branch_protection.json"
       - "scripts/test_ci_routing_matrix.py"
+      - "scripts/baseline_report.py"
+      - "scripts/test_baseline_report.py"
   push:
     branches: [main]
     paths:
@@ -19,7 +23,11 @@ on:
       - "scripts/validate_issue_forms.py"
       - "scripts/fixtures/issue_form_labels.json"
       - "scripts/fixtures/ci_routing_matrix.json"
+      - "scripts/fixtures/m0_exit_criteria.json"
+      - "scripts/fixtures/m0_branch_protection.json"
       - "scripts/test_ci_routing_matrix.py"
+      - "scripts/baseline_report.py"
+      - "scripts/test_baseline_report.py"
   workflow_dispatch:
 
 permissions:
@@ -49,3 +57,6 @@ jobs:
 
       - name: Validate CI routing matrix fixture
         run: python3 scripts/test_ci_routing_matrix.py
+
+      - name: Validate M0 baseline report
+        run: python3 scripts/test_baseline_report.py
