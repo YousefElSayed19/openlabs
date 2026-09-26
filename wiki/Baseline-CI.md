@@ -1,0 +1,62 @@
+## Purpose
+
+Document the baseline labs workflow (`labs.yml`) for maintainers and branch
+protection. Issue [#71](https://github.com/duckurity/openlabs/issues/71)
+(M0-08) defines the policy this page summarizes.
+
+## Required check name
+
+Configure branch protection on:
+
+| Check name | Workflow job |
+|:---|:---|
+| `CI required` | `ci-required` in `labs.yml` |
+
+Do not require matrix-generated names or skipped jobs individually. The
+aggregate job fails when any in-scope job fails and passes when out-of-scope
+jobs are skipped.
+
+Workflow changes should also require **`Lint workflows`** from
+`workflow-lint.yml`.
+
+## Concurrency
+
+Pull requests use `cancel-in-progress` on the labs workflow group so superseded
+pushes stop expensive work.
+
+## When the full baseline runs
+
+`push` to `main` and `workflow_dispatch` always run every labs job.
+
+Pull requests run **Detect change scope** first, then only the jobs marked
+`true` in the step summary.
+
+## Change-to-job matrix
+
+| Change example | Validate | Security | Content | PDF | duck-cross proof |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| `scripts/validate_issue_forms.py` only | yes | no | no | no | no |
+| `templates/labsheet.cls` only | no | no | no | yes | no |
+| `content/**/*.mdx` only | no | no | yes | no | no |
+| `labs/web/duck-cross/**` | yes | yes | yes | yes | yes |
+| `wiki/**` only | workflow does not start | | | | |
+
+Machine-readable examples live in
+`scripts/fixtures/ci_routing_matrix.json`. Verify with
+`python3 scripts/test_ci_routing_matrix.py`.
+
+## Permissions
+
+Labs jobs on pull requests use `contents: read` only. No workflow grants write
+permissions or exposes secrets to untrusted fork code beyond what GitHub
+provides to Actions on PRs.
+
+## Evidence commands
+
+```bash
+python3 scripts/test_ci_routing_matrix.py
+bash scripts/lint_workflows.sh
+```
+
+After merge, compare Actions minutes across five representative pull requests
+(docs-only outside labs, tooling-only, single-lab, content, workflow).
