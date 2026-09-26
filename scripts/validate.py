@@ -2,18 +2,44 @@
 """Validate lab structure, metadata, and flag hygiene.
 
 Usage:
-    python3 scripts/validate.py              # structure and metadata
-    python3 scripts/validate.py --compose    # also run `docker compose config`
+    python3 scripts/validate.py
+    python3 scripts/validate.py --compose
+    python3 scripts/validate.py --status supported --json report.json
 
-Zero dependencies. Skips labs/_template/. Exits 1 when any lab fails.
+Exit codes:
+    0  no blocking failures; supported catalog non-empty
+    1  supported lab failed validation
+    2  usage error
+    3  supported catalog is empty
+
+Experimental failures are advisory and do not change the exit code unless
+they also appear in the supported set. JSON uses version openlabs.inventory.v1.
 """
 
 import argparse
+import json
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+from lab_inventory import (
+    EXIT_BLOCKING,
+    EXIT_CATALOG,
+    EXIT_OK,
+    EXIT_USAGE,
+    LabRecord,
+    STATUS_SELECTIONS,
+    build_inventory_report,
+    discover_catalog,
+    exit_code_for_report,
+    format_github_step_summary,
+    format_terminal_summary,
+    in_selection,
+    lab_name,
+    lab_status,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LABS_DIR = REPO_ROOT / "labs"
@@ -192,6 +218,31 @@ def discover_labs() -> list[Path]:
     return labs
 
 
+def run_validate(*, compose: bool) -> tuple[list[LabRecord], list[Path]]:
+    labs, uncatalogued = discover_catalog()
+    records: list[LabRecord] = []
+    for lab in labs:
+        errors = check_lab(lab)
+        if compose:
+            for compose_name in COMPOSE_NAMES:
+                compose_file = lab / compose_name
+                if compose_file.is_file():
+                    error = check_compose(compose_file, lab)
+                    if error:
+                        errors.append(error)
+        status = lab_status(lab)
+        records.append(
+            LabRecord(
+                path=lab.relative_to(REPO_ROOT).as_posix(),
+                name=lab_name(lab),
+                status=status,
+                ok=not errors,
+                errors=errors,
+            )
+        )
+    return records, uncatalogued
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -199,53 +250,62 @@ def main() -> int:
         action="store_true",
         help="also validate compose files with `docker compose config`",
     )
+    parser.add_argument(
+        "--status",
+        choices=sorted(STATUS_SELECTIONS),
+        default="all",
+        help="filter JSON results; blocking exit uses supported failures",
+    )
+    parser.add_argument(
+        "--json",
+        type=Path,
+        metavar="FILE",
+        help="write structured inventory JSON",
+    )
+    parser.add_argument(
+        "--write-github-summary",
+        action="store_true",
+        help="append GitHub Actions step summary when GITHUB_STEP_SUMMARY is set",
+    )
     args = parser.parse_args()
 
-    labs = discover_labs()
-    if not labs:
-        print("no labs found")
-        return 1
+    if args.status not in STATUS_SELECTIONS:
+        print(f"invalid --status {args.status!r}", file=sys.stderr)
+        return EXIT_USAGE
 
-    failures = 0
-    status_counts = {"experimental": 0, "supported": 0}
-    for lab in labs:
-        errors = check_lab(lab)
-        meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8"))
-        status = meta.get("status", "").strip()
-        if status in status_counts:
-            status_counts[status] += 1
-        if args.compose:
-            for compose_name in COMPOSE_NAMES:
-                compose_file = lab / compose_name
-                if compose_file.is_file():
-                    error = check_compose(compose_file, lab)
-                    if error:
-                        errors.append(error)
-        if errors:
-            failures += 1
-            print(f"{lab.relative_to(REPO_ROOT)}:")
-            for error in errors:
-                print(f"  - {error}")
+    records, uncatalogued = run_validate(compose=args.compose)
+    if not records:
+        print("no catalogued labs found")
+        return EXIT_CATALOG
 
-    checked = "structure, metadata, and compose" if args.compose else "structure and metadata"
-    if failures:
-        print(f"failed {failures} of {len(labs)} labs ({checked})")
-        return 1
-
-    uncatalogued = discover_uncatalogued_dirs()
-    if uncatalogued:
-        print(
-            f"uncatalogued directories ({len(uncatalogued)}; not in public catalog):"
-        )
-        for path in uncatalogued:
-            print(f"  {path.relative_to(REPO_ROOT)}")
-
-    print(
-        f"validated {len(labs)} labs ({checked}): "
-        f"{status_counts['supported']} supported, "
-        f"{status_counts['experimental']} experimental"
+    report = build_inventory_report(
+        records,
+        selection=args.status,
+        uncatalogued=uncatalogued,
+        tool="validate" + ("+compose" if args.compose else ""),
     )
-    return 0
+
+    for record in records:
+        if not in_selection(record.status, args.status) or record.ok:
+            continue
+        print(f"{record.path}:")
+        for error in record.errors:
+            print(f"  - {error}")
+
+    print(format_terminal_summary(report))
+
+    if args.json:
+        args.json.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+    if args.write_github_summary:
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as handle:
+                handle.write(format_github_step_summary(report))
+
+    if args.status == "experimental":
+        return EXIT_OK
+    return exit_code_for_report(report)
 
 
 if __name__ == "__main__":
