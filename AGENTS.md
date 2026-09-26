@@ -28,6 +28,7 @@ verifies a player's flag against the stored SHA-256 hash.
 | `scripts/sync_wiki.py` | asset version bumps and wiki repo sync, zero dependencies |
 | `scripts/sync_site_content.py` | generates `content/labs/` from `labs/` at build time; zero dependencies |
 | `scripts/score_lab.py` | scores each lab 0-100 (structure, secrets, Dockerfile, compose, docs); blocks CI below 70 |
+| `scripts/baseline_report.py` | M0 baseline evidence report for issue #72; zero dependencies |
 | `.github/assets/fonts/` | vendored Funnel Display cuts, SIL OFL 1.1 |
 | `wiki/` | GitHub wiki source: player, authoring, and review guides |
 | `app/`, `components/`, `content/`, `lib/`, `hooks/` | Next.js library site at the repo root, deployed to GitHub Pages |
@@ -73,6 +74,8 @@ bash scripts/test_brand.sh               # integration-test the brand pipeline
 python3 scripts/sync_site_content.py      # regenerate content/labs/ manually
 python3 scripts/sync_site_content.py --check  # verify generated output matches
 python3 scripts/score_lab.py --min 70     # score every lab, fail below 70
+python3 scripts/baseline_report.py --check --wiki wiki/M0-Baseline-Evidence.md
+python3 scripts/test_baseline_report.py
 pnpm run build                            # build the library site
 pnpm run dev                              # serve the site locally
 ```
