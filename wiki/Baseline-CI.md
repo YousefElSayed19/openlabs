@@ -56,7 +56,12 @@ provides to Actions on PRs.
 ```bash
 python3 scripts/test_ci_routing_matrix.py
 bash scripts/lint_workflows.sh
+python3 scripts/baseline_report.py --check --wiki wiki/M0-Baseline-Evidence.md
 ```
+
+For the full M0 completion record and local equivalents to every CI job, see
+[M0 baseline evidence](M0-Baseline-Evidence) ([#72](https://github.com/duckurity/openlabs/issues/72)).
+Branch protection verification is manual; use [Branch protection record](Branch-Protection-Record).
 
 After merge, compare Actions minutes across five representative pull requests
 (docs-only outside labs, tooling-only, single-lab, content, workflow).

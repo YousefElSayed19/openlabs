@@ -12,6 +12,8 @@
 [[Lab catalog status](Lab-Catalog-Status)]
 [[Lab triage inventory](Lab-Triage-Inventory)]
 [[Baseline CI](Baseline-CI)]
+[[M0 baseline evidence](M0-Baseline-Evidence)]
+[[Branch protection record](Branch-Protection-Record)]
 [[Flag Format](Flag-Format)]
 [[Authoring a Lab](Authoring-a-Lab)]
 [[Reviewer Checklist](Reviewer-Checklist)]
