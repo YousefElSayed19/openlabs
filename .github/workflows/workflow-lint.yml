@@ -4,12 +4,18 @@ on:
   pull_request:
     paths:
       - ".github/workflows/**"
+      - ".github/ISSUE_TEMPLATE/**"
       - "scripts/lint_workflows.sh"
+      - "scripts/validate_issue_forms.py"
+      - "scripts/fixtures/issue_form_labels.json"
   push:
     branches: [main]
     paths:
       - ".github/workflows/**"
+      - ".github/ISSUE_TEMPLATE/**"
       - "scripts/lint_workflows.sh"
+      - "scripts/validate_issue_forms.py"
+      - "scripts/fixtures/issue_form_labels.json"
   workflow_dispatch:
 
 permissions:
@@ -25,3 +31,10 @@ jobs:
 
       - name: Run actionlint
         uses: rhysd/actionlint@03d0035246f3e81f36aed592ffb4bebf33a03106 # v1.7.7
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate issue forms
+        run: python3 scripts/validate_issue_forms.py
