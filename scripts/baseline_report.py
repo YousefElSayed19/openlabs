@@ -244,8 +244,6 @@ def escape_cell(text: str) -> str:
 
 
 def render_wiki(report: dict) -> str:
-    commit = report["reviewed_commit"]
-    short = commit[:12]
     cat = report["catalog"]
     lines = [
         "## Purpose",
@@ -255,9 +253,9 @@ def render_wiki(report: dict) -> str:
         "Use it before enabling branch protection on `main`. Depends on "
         "[#71](https://github.com/duckurity/openlabs/issues/71) (**CI required**).",
         "",
-        f"Reviewed commit [`{short}`](https://github.com/duckurity/openlabs/commit/{commit}) "
-        f"({report['commit_timestamp']}). Regenerate with "
-        "`python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`.",
+        f"Reviewed on `{report['reviewed_on']}`. Regenerate with "
+        "`python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. "
+        "Write `--json` when you need the reviewed git commit and full inventory snapshot.",
         "",
         "## Catalog manifest",
         "",

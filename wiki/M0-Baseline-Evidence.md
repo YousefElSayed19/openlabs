@@ -2,7 +2,7 @@
 
 Auditable M0 completion record for [#72](https://github.com/duckurity/openlabs/issues/72) (M0-09). Use it before enabling branch protection on `main`. Depends on [#71](https://github.com/duckurity/openlabs/issues/71) (**CI required**).
 
-Reviewed commit [`654c61d83eb8`](https://github.com/duckurity/openlabs/commit/654c61d83eb8d71f94e14008d2fddd77ce11c6a3) (2026-09-27T01:10:57+03:00). Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`.
+Reviewed on `2026-09-27`. Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. Write `--json` when you need the reviewed git commit and full inventory snapshot.
 
 ## Catalog manifest
 
