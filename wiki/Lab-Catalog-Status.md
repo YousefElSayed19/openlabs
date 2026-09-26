@@ -50,9 +50,28 @@ reference supported lab; CI proves L0–L6 with
 
 ```bash
 python3 scripts/test_validate_status.py
+python3 scripts/test_status_aware_inventory.py
 python3 scripts/validate.py
+python3 scripts/score_lab.py --min 70
 ```
 
 The fixture runner covers valid, missing, and invalid `status` values.
+The inventory test covers supported and experimental pass and fail paths,
+missing status, and uncatalogued directories.
+
+`validate.py` and `score_lab.py` evaluate every catalogued lab. Supported
+failures block the command exit code. Experimental failures print under
+an advisory section and do not block merges.
+
+Structured JSON uses version `openlabs.inventory.v1`. Pass `--json FILE`
+to write the report.
+
+| Exit code | Meaning |
+|:---:|:---|
+| `0` | No blocking failures; supported catalog is non-empty |
+| `1` | Supported lab failed validation or score gate |
+| `2` | Usage error |
+| `3` | Supported catalog is empty |
+
 `python3 scripts/validate.py` prints catalog counts and lists uncatalogued
-directories separately.
+directories separately from blocking and advisory findings.
