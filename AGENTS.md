@@ -23,6 +23,7 @@ verifies a player's flag against the stored SHA-256 hash.
 | `templates/labsheet.cls` | layout and type system the PDF fills; never edited by hand past the generator |
 | `scripts/test_brand.sh` | integration-test the brand pipeline in a temp clone |
 | `BRAND.md` | color, type, badge, and pipeline reference |
+| `scripts/sync_catalog_public.py` | public catalog counts and README/wiki/site listings from `lab.yml`, zero dependencies |
 | `scripts/sync_wiki.py` | asset version bumps and wiki repo sync, zero dependencies |
 | `scripts/sync_site_content.py` | generates `content/labs/` from `labs/` at build time; zero dependencies |
 | `scripts/score_lab.py` | scores each lab 0-100 (structure, secrets, Dockerfile, compose, docs); blocks CI below 70 |
@@ -61,6 +62,8 @@ python3 scripts/validate.py              # structure + metadata
 python3 scripts/validate.py --compose    # + docker compose config
 python3 scripts/check.py labs/web/duck-cross
 python3 scripts/make_badges.py           # regenerate badges and chips
+python3 scripts/sync_catalog_public.py --write  # public catalog counts and listings
+python3 scripts/sync_catalog_public.py --check  # fail if generated catalog output is stale
 python3 scripts/make_lab_pdf.py --all --strict   # rebuild every lab sheet pdf
 python3 scripts/sync_wiki.py bump        # hash-stamp asset refs (?v=)
 python3 scripts/sync_wiki.py wiki        # publish wiki/ to the wiki repo
