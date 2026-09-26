@@ -11,10 +11,16 @@
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/content-license-dark.svg?v=b83304a6">
     <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/content-license-light.svg?v=b42ada1f" alt="content: CC-BY-4.0" height="20">
   </picture>
+  <!-- catalog-public:badges-start -->
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-count-dark.svg?v=763cfa6d">
-    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-count-light.svg?v=6d922cf0" alt="labs: 1 live" height="20">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-supported-dark.svg?v=776cefe8">
+    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-supported-light.svg?v=776cefe8" alt="labs: 15 supported" height="20">
   </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-experimental-dark.svg?v=2281a510">
+    <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/labs-experimental-light.svg?v=2281a510" alt="labs: 5 experimental" height="20">
+  </picture>
+<!-- catalog-public:badges-end -->
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/docker-dark.svg?v=2b6c885f">
     <img src="https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges/docker-light.svg?v=d7abbc30" alt="docker: compose v2" height="20">
@@ -70,3 +76,7 @@ Open `http://localhost:8377`. Verify a solve with
 
 [Explore the repository](https://github.com/Duckurity/openlabs) |
 [Report a broken lab](https://github.com/Duckurity/openlabs/issues)
+
+<!-- catalog-public:start -->
+Catalog totals: **15 supported**, **5 experimental**. Experimental labs are not guaranteed supported. See [[Lab catalog status](Lab-Catalog-Status)] and [[Lab triage inventory](Lab-Triage-Inventory)].
+<!-- catalog-public:end -->

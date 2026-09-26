@@ -66,6 +66,11 @@ an advisory section and do not block merges.
 Structured JSON uses version `openlabs.inventory.v1`. Pass `--json FILE`
 to write the report.
 
+Public catalog totals and README lab tables are generated from `lab.yml`
+metadata. Regenerate with `python3 scripts/sync_catalog_public.py --write`
+and verify with `--check`. Supported and experimental counts stay separate;
+uncatalogued directories never appear in public totals.
+
 | Exit code | Meaning |
 |:---:|:---|
 | `0` | No blocking failures; supported catalog is non-empty |
