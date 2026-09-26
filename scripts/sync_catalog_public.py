@@ -38,8 +38,8 @@ MARKER_BADGES_START = "<!-- catalog-public:badges-start -->"
 MARKER_BADGES_END = "<!-- catalog-public:badges-end -->"
 
 
-def badge_asset_version(stem: str) -> str:
-    path = REPO_ROOT / ".github/assets/badges" / f"{stem}-dark.svg"
+def badge_asset_version(stem: str, *, variant: str) -> str:
+    path = REPO_ROOT / ".github/assets/badges" / f"{stem}-{variant}.svg"
     if not path.is_file():
         return "00000000"
     return hashlib.sha256(path.read_bytes()).hexdigest()[:8]
@@ -136,16 +136,18 @@ def render_readme_body(catalog: dict, chips: dict[str, str]) -> str:
 def render_badge_block(catalog: dict) -> str:
     supported = catalog["supported_count"]
     experimental = catalog["experimental_count"]
-    sup_v = badge_asset_version("labs-supported")
-    exp_v = badge_asset_version("labs-experimental")
+    sup_dark = badge_asset_version("labs-supported", variant="dark")
+    sup_light = badge_asset_version("labs-supported", variant="light")
+    exp_dark = badge_asset_version("labs-experimental", variant="dark")
+    exp_light = badge_asset_version("labs-experimental", variant="light")
     return (
         f'  <picture><source media="(prefers-color-scheme: dark)" '
-        f'srcset=".github/assets/badges/labs-supported-dark.svg?v={sup_v}">'
-        f'<img src=".github/assets/badges/labs-supported-light.svg?v={sup_v}" '
+        f'srcset=".github/assets/badges/labs-supported-dark.svg?v={sup_dark}">'
+        f'<img src=".github/assets/badges/labs-supported-light.svg?v={sup_light}" '
         f'alt="labs: {supported} supported" height="20"></picture>\n'
         f'  <picture><source media="(prefers-color-scheme: dark)" '
-        f'srcset=".github/assets/badges/labs-experimental-dark.svg?v={exp_v}">'
-        f'<img src=".github/assets/badges/labs-experimental-light.svg?v={exp_v}" '
+        f'srcset=".github/assets/badges/labs-experimental-dark.svg?v={exp_dark}">'
+        f'<img src=".github/assets/badges/labs-experimental-light.svg?v={exp_light}" '
         f'alt="labs: {experimental} experimental" height="20"></picture>'
     )
 
@@ -154,19 +156,21 @@ def render_wiki_badge_block(catalog: dict) -> str:
     supported = catalog["supported_count"]
     experimental = catalog["experimental_count"]
     base = "https://raw.githubusercontent.com/Duckurity/openlabs/main/.github/assets/badges"
-    sup_v = badge_asset_version("labs-supported")
-    exp_v = badge_asset_version("labs-experimental")
+    sup_dark = badge_asset_version("labs-supported", variant="dark")
+    sup_light = badge_asset_version("labs-supported", variant="light")
+    exp_dark = badge_asset_version("labs-experimental", variant="dark")
+    exp_light = badge_asset_version("labs-experimental", variant="light")
     return (
         f"  <picture>\n"
         f'    <source media="(prefers-color-scheme: dark)" '
-        f'srcset="{base}/labs-supported-dark.svg?v={sup_v}">\n'
-        f'    <img src="{base}/labs-supported-light.svg?v={sup_v}" '
+        f'srcset="{base}/labs-supported-dark.svg?v={sup_dark}">\n'
+        f'    <img src="{base}/labs-supported-light.svg?v={sup_light}" '
         f'alt="labs: {supported} supported" height="20">\n'
         f"  </picture>\n"
         f"  <picture>\n"
         f'    <source media="(prefers-color-scheme: dark)" '
-        f'srcset="{base}/labs-experimental-dark.svg?v={exp_v}">\n'
-        f'    <img src="{base}/labs-experimental-light.svg?v={exp_v}" '
+        f'srcset="{base}/labs-experimental-dark.svg?v={exp_dark}">\n'
+        f'    <img src="{base}/labs-experimental-light.svg?v={exp_light}" '
         f'alt="labs: {experimental} experimental" height="20">\n'
         f"  </picture>"
     )

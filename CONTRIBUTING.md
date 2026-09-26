@@ -8,7 +8,10 @@ what CI checks, and the rules a lab must follow to be merged.
 - Author a lab
 - Fix or improve an existing lab
 - Improve documentation
-- Report a broken lab through the issue forms
+- Report a broken lab through the [lab bug issue form](https://github.com/duckurity/openlabs/issues/new?template=lab-bug.yml)
+
+See [SUPPORT.md](SUPPORT.md) for other intake paths. Do not use public issues
+for security reports; use [private vulnerability reporting](https://github.com/duckurity/openlabs/security/advisories/new).
 
 ## Before you start
 

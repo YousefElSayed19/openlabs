@@ -17,6 +17,7 @@ verifies a player's flag against the stored SHA-256 hash.
 | `labs/<track>/<lab>/` | one lab; tracks: `web`, `binary`, `crypto`, `network`, `osint` |
 | `labs/_template/` | skeleton for new labs, skipped by validation |
 | `scripts/validate.py` | CI validator, zero dependencies |
+| `scripts/validate_issue_forms.py` | checks issue form labels and intake links, zero dependencies |
 | `scripts/check.py` | player flag checker, zero dependencies |
 | `scripts/make_badges.py` | badge and chip generator, needs `fonttools` and vendored fonts |
 | `scripts/make_lab_pdf.py` | branded challenge-sheet PDF, template-driven, needs `xelatex` + `rsvg-convert` |
@@ -59,6 +60,7 @@ verifies a player's flag against the stored SHA-256 hash.
 
 ```bash
 python3 scripts/validate.py              # structure + metadata
+python3 scripts/validate_issue_forms.py   # issue form labels and intake links
 python3 scripts/validate.py --compose    # + docker compose config
 python3 scripts/check.py labs/web/duck-cross
 python3 scripts/make_badges.py           # regenerate badges and chips
