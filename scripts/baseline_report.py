@@ -21,7 +21,6 @@ import argparse
 import json
 import subprocess
 import sys
-from datetime import date
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -197,6 +196,7 @@ def local_ci_commands() -> list[dict]:
 
 def build_report() -> dict:
     commit = git_reviewed_commit()
+    commit_timestamp = git_commit_date(commit)
     inventory = run_validate_inventory()
     manifest = supported_manifest(inventory)
     validate_exit = exit_code_for_report(inventory)
@@ -213,8 +213,8 @@ def build_report() -> dict:
         "version": REPORT_VERSION,
         "parent_issue": 72,
         "reviewed_commit": commit,
-        "reviewed_on": date.today().isoformat(),
-        "commit_timestamp": git_commit_date(commit),
+        "reviewed_on": commit_timestamp[:10],
+        "commit_timestamp": commit_timestamp,
         "catalog": inventory["catalog"],
         "uncatalogued": inventory["uncatalogued"],
         "supported_manifest": manifest,
