@@ -8,6 +8,8 @@ on:
       - "scripts/lint_workflows.sh"
       - "scripts/validate_issue_forms.py"
       - "scripts/fixtures/issue_form_labels.json"
+      - "scripts/fixtures/ci_routing_matrix.json"
+      - "scripts/test_ci_routing_matrix.py"
   push:
     branches: [main]
     paths:
@@ -16,10 +18,16 @@ on:
       - "scripts/lint_workflows.sh"
       - "scripts/validate_issue_forms.py"
       - "scripts/fixtures/issue_form_labels.json"
+      - "scripts/fixtures/ci_routing_matrix.json"
+      - "scripts/test_ci_routing_matrix.py"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: workflow-lint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   actionlint:
@@ -38,3 +46,6 @@ jobs:
 
       - name: Validate issue forms
         run: python3 scripts/validate_issue_forms.py
+
+      - name: Validate CI routing matrix fixture
+        run: python3 scripts/test_ci_routing_matrix.py

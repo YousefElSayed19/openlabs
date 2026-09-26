@@ -1,0 +1,43 @@
+{
+  "workflow_file": ".github/workflows/labs.yml",
+  "required_check": "CI required",
+  "full_run_events": ["push", "workflow_dispatch"],
+  "examples": [
+    {
+      "change": "scripts/validate_issue_forms.py only",
+      "run_validate": true,
+      "run_security": false,
+      "run_content": false,
+      "run_pdf": false,
+      "run_reference": false
+    },
+    {
+      "change": "templates/labsheet.cls only",
+      "run_validate": false,
+      "run_security": false,
+      "run_content": false,
+      "run_pdf": true,
+      "run_reference": false
+    },
+    {
+      "change": "labs/web/duck-cross/README.md",
+      "run_validate": true,
+      "run_security": true,
+      "run_content": true,
+      "run_pdf": true,
+      "run_reference": true
+    },
+    {
+      "change": "content/guide.mdx only",
+      "run_validate": false,
+      "run_security": false,
+      "run_content": true,
+      "run_pdf": false,
+      "run_reference": false
+    },
+    {
+      "change": "wiki/Home.md only",
+      "labs_workflow_triggers": false
+    }
+  ]
+}

@@ -34,7 +34,7 @@ verifies a player's flag against the stored SHA-256 hash.
 | `content/labs/` | generated from `labs/` by `prebuild`/`predev`; gitignored, never edited by hand |
 | `app/styles/theming.css` | design tokens: palette, type, radius; edit here, never hardcode values in components |
 | `.github/workflows/site.yml` | syncs content, builds the site, and deploys to Pages on `main` |
-| `.github/workflows/labs.yml` | CI: validator, security scans + score gate (min 70), content contracts |
+| `.github/workflows/labs.yml` | CI: validate, security, content, PDF; required check `CI required` |
 | `.github/workflows/brand.yml` | regenerates badges, bumps asset versions, syncs the wiki |
 
 ## Voice rules for any text you write
