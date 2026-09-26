@@ -39,15 +39,21 @@ jobs:
           python-version: "3.12"
 
       - name: Validate lab structure and metadata
-        run: python3 scripts/validate.py
-
-      - name: Run lab status validator fixtures
-        run: python3 scripts/test_validate_status.py
+        run: |
+          python3 scripts/validate.py --json validate-report.json --write-github-summary
+          python3 scripts/test_validate_status.py
+          python3 scripts/test_status_aware_inventory.py
 
       - name: Validate compose files
         run: |
           docker compose version
-          python3 scripts/validate.py --compose
+          python3 scripts/validate.py --compose --json validate-compose-report.json --write-github-summary
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validate-reports
+          path: validate-*.json
 
   reference-lab:
     name: Prove duck-cross L0-L6
@@ -94,8 +100,15 @@ jobs:
             | tar -xz -C /usr/local/bin gitleaks
           gitleaks detect --source . --config .gitleaks.toml --redact --verbose
 
-      - name: Score every lab (blocking)
-        run: python3 scripts/score_lab.py --min 70
+      - name: Score every lab (blocking on supported)
+        run: |
+          python3 scripts/score_lab.py --min 70 --json score-report.json --write-github-summary
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: score-report
+          path: score-report.json
 
       # Lab services pin vulnerable dependencies on purpose. Report CVEs for
       # visibility but do not fail the job; score_lab.py and gitleaks are the
