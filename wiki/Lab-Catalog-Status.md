@@ -75,3 +75,7 @@ to write the report.
 
 `python3 scripts/validate.py` prints catalog counts and lists uncatalogued
 directories separately from blocking and advisory findings.
+
+The reviewed directory decisions for incomplete or uncatalogued labs live in
+[[Lab triage inventory](Lab-Triage-Inventory)]. Regenerate checks with
+`python3 scripts/lab_triage_inventory.py --check`.

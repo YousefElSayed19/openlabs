@@ -43,6 +43,7 @@ jobs:
           python3 scripts/validate.py --json validate-report.json --write-github-summary
           python3 scripts/test_validate_status.py
           python3 scripts/test_status_aware_inventory.py
+          python3 scripts/test_lab_triage_inventory.py
 
       - name: Validate compose files
         run: |
