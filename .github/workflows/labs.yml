@@ -128,14 +128,15 @@ jobs:
             done
             echo false
           }
-          run_validate="$(bool_or "$labs" "$lab_scripts" "$workflow")"
-          run_compose="$(bool_or "$labs" "$compose" "$workflow")"
-          run_reference="$(bool_or "$reference" "$workflow")"
-          run_security="$(bool_or "$labs" "$security_scripts" "$workflow")"
-          run_content="$(bool_or "$content" "$workflow")"
-          run_pdf="$(bool_or "$pdf" "$workflow")"
           for key in validate compose reference security content pdf; do
-            eval "value=\$run_${key}"
+            case "$key" in
+              validate) value="$(bool_or "$labs" "$lab_scripts" "$workflow")" ;;
+              compose) value="$(bool_or "$labs" "$compose" "$workflow")" ;;
+              reference) value="$(bool_or "$reference" "$workflow")" ;;
+              security) value="$(bool_or "$labs" "$security_scripts" "$workflow")" ;;
+              content) value="$(bool_or "$content" "$workflow")" ;;
+              pdf) value="$(bool_or "$pdf" "$workflow")" ;;
+            esac
             echo "run_${key}=${value}" >> "$GITHUB_OUTPUT"
           done
           echo "scope_note=path filter on pull request" >> "$GITHUB_OUTPUT"
