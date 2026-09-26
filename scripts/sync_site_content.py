@@ -318,6 +318,9 @@ def render_mdx(
         f"score: {score['score']}",
         f"score_grade: {score['grade']}",
     ]
+    status = meta.get("status", "").strip()
+    if status:
+        extra.append(f"status: {status}")
     if techniques:
         extra.append("linksTo:")
         extra.extend(f"  - technique/{slug}" for slug, _ in techniques)

@@ -9,6 +9,7 @@ Zero dependencies. Skips labs/_template/. Exits 1 when any lab fails.
 """
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -25,6 +26,7 @@ HASH_RE = re.compile(r"^[0-9a-f]{64}$")
 FLAG_PLAINTEXT_RE = re.compile(r"duck\{[a-z0-9_]{16,40}\}")
 
 REQUIRED_KEYS = ("name", "track", "difficulty", "description", "flag_hash")
+STATUSES = frozenset({"experimental", "supported"})
 COMPOSE_NAMES = (
     "docker-compose.yml",
     "docker-compose.yaml",
@@ -54,6 +56,35 @@ def parse_bracket_list(text: str) -> list[str]:
     if not (text.startswith("[") and text.endswith("]")):
         return []
     return [item.strip() for item in text[1:-1].split(",") if item.strip()]
+
+
+def check_lab_status(meta: dict[str, str]) -> list[str]:
+    """Validate the lab catalog status field."""
+    errors: list[str] = []
+    raw = meta.get("status", "").strip()
+    if not raw:
+        errors.append("lab.yml: missing or empty `status`")
+        return errors
+    if raw not in STATUSES:
+        errors.append(
+            f"lab.yml: `status` {raw!r} must be one of {sorted(STATUSES)}"
+        )
+    return errors
+
+
+def discover_uncatalogued_dirs() -> list[Path]:
+    """Return track lab directories that have no lab.yml (not catalogued)."""
+    if not LABS_DIR.is_dir():
+        return []
+    uncatalogued: list[Path] = []
+    for track in sorted(LABS_DIR.iterdir()):
+        if not track.is_dir() or track.name.startswith((".", "_")):
+            continue
+        for lab in sorted(track.iterdir()):
+            if lab.is_dir() and not lab.name.startswith((".", "_")):
+                if not (lab / "lab.yml").is_file():
+                    uncatalogued.append(lab)
+    return uncatalogued
 
 
 def check_lab(lab: Path) -> list[str]:
@@ -98,6 +129,8 @@ def check_lab(lab: Path) -> list[str]:
     if not HASH_RE.match(meta["flag_hash"]):
         errors.append("lab.yml: `flag_hash` must be 64 lowercase hex characters")
 
+    errors.extend(check_lab_status(meta))
+
     techniques_raw = meta.get("techniques", "")
     if techniques_raw:
         techniques = parse_bracket_list(techniques_raw)
@@ -116,11 +149,28 @@ def check_lab(lab: Path) -> list[str]:
     return errors
 
 
-def check_compose(compose_file: Path) -> str | None:
+def compose_check_env(lab_dir: Path) -> dict[str, str]:
+    env = os.environ.copy()
+    example = lab_dir / ".env.example"
+    if example.is_file():
+        for line in example.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            if key and key not in env:
+                env[key] = value.strip()
+    env.setdefault("FLAG", "duck{compose_validate_placeholder}")
+    return env
+
+
+def check_compose(compose_file: Path, lab_dir: Path) -> str | None:
     result = subprocess.run(
         ["docker", "compose", "-f", str(compose_file), "config", "-q"],
         capture_output=True,
         text=True,
+        env=compose_check_env(lab_dir),
     )
     if result.returncode != 0:
         detail = result.stderr.strip() or f"exit code {result.returncode}"
@@ -137,7 +187,8 @@ def discover_labs() -> list[Path]:
             continue
         for lab in sorted(track.iterdir()):
             if lab.is_dir() and not lab.name.startswith((".", "_")):
-                labs.append(lab)
+                if (lab / "lab.yml").is_file():
+                    labs.append(lab)
     return labs
 
 
@@ -156,13 +207,18 @@ def main() -> int:
         return 1
 
     failures = 0
+    status_counts = {"experimental": 0, "supported": 0}
     for lab in labs:
         errors = check_lab(lab)
+        meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8"))
+        status = meta.get("status", "").strip()
+        if status in status_counts:
+            status_counts[status] += 1
         if args.compose:
             for compose_name in COMPOSE_NAMES:
                 compose_file = lab / compose_name
                 if compose_file.is_file():
-                    error = check_compose(compose_file)
+                    error = check_compose(compose_file, lab)
                     if error:
                         errors.append(error)
         if errors:
@@ -176,7 +232,19 @@ def main() -> int:
         print(f"failed {failures} of {len(labs)} labs ({checked})")
         return 1
 
-    print(f"validated {len(labs)} labs ({checked})")
+    uncatalogued = discover_uncatalogued_dirs()
+    if uncatalogued:
+        print(
+            f"uncatalogued directories ({len(uncatalogued)}; not in public catalog):"
+        )
+        for path in uncatalogued:
+            print(f"  {path.relative_to(REPO_ROOT)}")
+
+    print(
+        f"validated {len(labs)} labs ({checked}): "
+        f"{status_counts['supported']} supported, "
+        f"{status_counts['experimental']} experimental"
+    )
     return 0
 
 
