@@ -1,3 +1,4 @@
+# Lint GitHub Actions workflows and related CI fixtures on pull requests.
 name: workflow-lint
 
 on:
