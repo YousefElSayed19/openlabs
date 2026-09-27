@@ -34,6 +34,8 @@ from catalog_public import build_public_catalog  # noqa: E402
 
 MARKER_START = "<!-- catalog-public:start -->"
 MARKER_END = "<!-- catalog-public:end -->"
+SITE_INDEX_MARKER_START = "{/* catalog-public:start */}"
+SITE_INDEX_MARKER_END = "{/* catalog-public:end */}"
 MARKER_BADGES_START = "<!-- catalog-public:badges-start -->"
 MARKER_BADGES_END = "<!-- catalog-public:badges-end -->"
 
@@ -244,11 +246,17 @@ def patch_wiki_home(catalog: dict) -> None:
 def patch_site_index(catalog: dict) -> None:
     path = REPO_ROOT / "content" / "labs" / "index.mdx"
     text = path.read_text(encoding="utf-8")
-    if MARKER_START not in text:
+    # MDX cannot parse HTML comment markers in page bodies.
+    text = text.replace(MARKER_START, SITE_INDEX_MARKER_START).replace(
+        MARKER_END, SITE_INDEX_MARKER_END
+    )
+    start = SITE_INDEX_MARKER_START
+    end = SITE_INDEX_MARKER_END
+    if start not in text:
         insert = (
-            f"\n{MARKER_START}\n"
+            f"\n{start}\n"
             f"{render_site_index_body(catalog)}\n"
-            f"{MARKER_END}\n\n"
+            f"{end}\n\n"
         )
         parts = text.split("---", 2)
         if len(parts) < 3:
@@ -256,7 +264,7 @@ def patch_site_index(catalog: dict) -> None:
         text = parts[0] + "---" + parts[1] + "---" + insert + parts[2].lstrip("\n")
     else:
         text = replace_block(
-            text, MARKER_START, MARKER_END, render_site_index_body(catalog)
+            text, start, end, render_site_index_body(catalog)
         )
     path.write_text(text, encoding="utf-8")
 
