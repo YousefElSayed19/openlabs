@@ -180,6 +180,21 @@ def login_from_email(email: str) -> str:
     return ""
 
 
+GITHUB_LOGIN_RE = re.compile(
+    r"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$"
+)
+
+
+def github_login_from_git_name(name: str) -> str:
+    """Guess a GitHub login from a git author name when API lookup is unavailable."""
+    candidate = name.strip()
+    if not candidate or " " in candidate or "@" in candidate or "--" in candidate:
+        return ""
+    if not GITHUB_LOGIN_RE.fullmatch(candidate):
+        return ""
+    return candidate
+
+
 def commit_login(owner_repo: str, sha: str, cache: dict) -> str:
     """GitHub login for a commit sha, cached. Empty when unresolvable."""
     key = f"commit:{sha}"
@@ -269,9 +284,14 @@ def github_people(lab_dir: Path) -> tuple[dict[str, str], dict[str, str]]:
         creator["author_url"] = f"https://github.com/{login}"
         creator["author_avatar"] = f"https://github.com/{login}.png"
     else:
-        creator["author_url"] = (
-            f"https://github.com/{owner_repo}/commits/main/{lab_rel}"
-        )
+        login = github_login_from_git_name(name)
+        if login:
+            creator["author_url"] = f"https://github.com/{login}"
+            creator["author_avatar"] = f"https://github.com/{login}.png"
+        else:
+            creator["author_url"] = (
+                f"https://github.com/{owner_repo}/commits/main/{lab_rel}"
+            )
 
     verifier: dict[str, str] = {}
     pr = introducing_pr(owner_repo, lab_rel, cache)
