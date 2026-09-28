@@ -10,6 +10,20 @@ contract boundary. Senior maintainer approval is required before **M1-02** or
 - **Catalog at baseline:** 20 catalogued labs (1 `supported`, 19 `experimental`), 5 uncatalogued directories
 - **Record status:** draft awaiting maintainer sign-off (see [Approval](#approval))
 
+## Decision summary (proposed v1)
+
+| Item | Proposed choice |
+|:---|:---|
+| Contract marker | `contract_version: 1` |
+| Schema | `contracts/lab.schema.json` (JSON Schema 2020-12) |
+| Shared Python module | `scripts/openlabs_contract.py` |
+| Diagnostic registry | `contracts/diagnostics.json` |
+| CLI specification | `contracts/cli-v1.md` plus JSON fixtures |
+| Lab statuses | `experimental` and `supported` only |
+| Unknown fields | Reject in strict validation with stable `OL-####` ID (M1-05) |
+| YAML surface | Explicit flat subset only (no general YAML runtime) |
+
+---
 
 ## Metadata consumers
 
@@ -101,3 +115,106 @@ the right column where it differs from today.
 `public/shapes/*.svg`, lab sheet PDFs, and catalog JSON from
 `sync_catalog_public.py` must stay byte-stable except when metadata or source
 READMEs change.
+
+---
+
+## v1 required and optional fields
+
+Proposed after inventory (confirm or edit in review):
+
+**Required:** `contract_version`, `name`, `track`, `difficulty`, `description`,
+`flag_hash`, `status`, `techniques` (may be empty list `[]` in v1 to match
+catalog coverage).
+
+**Optional:** `checkpoint_flag_hash`, `port`.
+
+**Rejected:** any other top-level key in strict validation.
+
+Rationale: every catalogued lab already ships `techniques`. Requiring the key
+with `[]` allowed removes “missing vs empty” drift between validate and site
+sync.
+
+---
+
+## Versioning and compatibility policy
+
+| Change type | Policy |
+|:---|:---|
+| Compatible addition | New optional field only after schema + parser + docs update; default behavior unchanged when absent |
+| Breaking change | Increment `contract_version`; keep parser for prior version until migration completes |
+| Deprecation | Field remains parsed with warning diagnostic for one milestone; then removed in next major version |
+| Unsupported `contract_version` | Fail with registry ID; no silent fallback to v0 |
+| Lab promotion | `supported` still requires L0-L6 evidence; contract migration does not promote labs |
+
+---
+
+## Canonical artifact paths
+
+| Artifact | Path |
+|:---|:---|
+| JSON Schema | `contracts/lab.schema.json` |
+| Shared parser and model | `scripts/openlabs_contract.py` |
+| Diagnostic registry | `contracts/diagnostics.json` |
+| CLI and JSON contract | `contracts/cli-v1.md`, fixtures under `scripts/fixtures/cli_contract/` (exact dir in M1-07) |
+| Decision record (this file) | `wiki/M1-Contract-Decisions.md` |
+
+---
+
+## Consumer migration and rollback
+
+Order matches [M1 delivery graph](https://github.com/duckurity/openlabs/issues/104).
+Rollback = revert the listed pull request; regenerate derived artifacts with
+canonical commands.
+
+| Order | Consumer area | Primary scripts | Migrate in issue | Rollback point |
+|:---|:---|:---|:---|:---|
+| 1 | Shared parser | `openlabs_contract.py` (new) | M1-03 | Revert parser PR; consumers still on `validate.parse_flat_yaml` |
+| 2 | Validate, inventory, triage, catalog, score, reference proof | `validate.py`, `lab_inventory.py`, `catalog_public.py`, `score_lab.py`, `lab_triage_inventory.py`, `prove_reference_lab.py` | M1-04 slice 1 | Revert slice; run `validate.py` |
+| 3 | Site and author metadata | `sync_site_content.py`, tests | M1-04 slice 2 | Revert slice; `sync_site_content.py --check` |
+| 4 | PDF and shapes | `make_lab_pdf.py`, `make_shapes.py` | M1-04 slice 3 | Revert slice; `make_lab_pdf.py --all --strict` |
+| 5 | Flag checker | `check.py` | M1-04 slice 4 | Revert slice; spot-check `check.py` on `duck-cross` |
+| 6 | Lab files and template | all `labs/**/lab.yml` | M1-06 | Revert migration commit; no flag plaintext in git |
+| 7 | CI conformance | `labs.yml`, `test_contract.py` | M1-08 | Revert workflow step |
+| 8 | Docs freeze | `CONTRIBUTING.md`, `AGENTS.md`, template | M1-09 | Docs-only revert |
+
+---
+
+## Open pull requests (migration coordination)
+
+Do not silently rewrite contributor branches. When M1-06 lands, authors should
+rebase and add `contract_version: 1` (and required keys per this record).
+
+| PR | Topic | M1 touch |
+|:---|:---|:---|
+| [#58](https://github.com/duckurity/openlabs/pull/58) | Sayed Khashana REST IDOR lab | Add `lab.yml` with v1 fields when catalogued |
+| [#57](https://github.com/duckurity/openlabs/pull/57) | nexora-platform | Already catalogued on `main`; metadata migration only if branch diverges |
+| [#95](https://github.com/duckurity/openlabs/pull/95) | Lab author sync | Regenerated MDX; watch creator fields during M1-04 |
+| Dependabot lab PRs | Dependency bumps | Rebase after M1-06 if they touch `lab.yml` |
+
+---
+
+## Approval
+
+| Reviewer | Date | Outcome |
+|:---|:---|:---|
+| _Senior maintainer_ | _pending_ | Approve or revise v1 field list, YAML subset, and paths before M1-02 / M1-03 |
+
+When approved, update **Record status** at the top to `approved` and link the
+review comment or pull request.
+
+---
+
+## Verification (M1-01)
+
+Commands run for this documentation-only change:
+
+```bash
+rg -n 'parse_(flat_yaml|lab_yml)|lab\.yml' scripts CONTRIBUTING.md AGENTS.md wiki
+python3 scripts/validate.py
+python3 scripts/sync_catalog_public.py --check
+python3 scripts/sync_site_content.py --check
+git diff --check
+```
+
+No generated catalog, site, or wiki sync output should change from this issue
+alone.
