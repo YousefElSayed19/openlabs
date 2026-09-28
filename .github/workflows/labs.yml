@@ -113,6 +113,11 @@ jobs:
             echo "scope_note=full baseline run (${GITHUB_EVENT_NAME})" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          if [ "${{ github.actor }}" = "dependabot[bot]" ]; then
+            write_all
+            echo "scope_note=full baseline run (dependabot pull request)" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           labs="${{ steps.filter.outputs.labs }}"
           lab_scripts="${{ steps.filter.outputs.lab_scripts }}"
           workflow="${{ steps.filter.outputs.workflow }}"
