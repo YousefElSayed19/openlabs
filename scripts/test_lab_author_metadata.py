@@ -18,7 +18,7 @@ sys.path.insert(0, str(SCRIPTS))
 from validate import discover_labs  # noqa: E402
 from sync_site_content import (  # noqa: E402
     GITHUB_PROFILE_URL_RE,
-    parse_lab_yml,
+    load_lab_meta,
 )
 
 AUTHOR_NAME_RE = re.compile(r'^author_name:\s*"([^"]+)"', re.MULTILINE)
@@ -63,7 +63,7 @@ def main() -> int:
 
     for lab in catalogued:
         rel = lab.relative_to(REPO_ROOT).as_posix()
-        meta = parse_lab_yml(lab / "lab.yml")
+        meta = load_lab_meta(lab / "lab.yml")
         slug = meta.get("name", lab.name)
         mdx = CONTENT_LABS / f"{slug}.mdx"
         if not mdx.is_file():

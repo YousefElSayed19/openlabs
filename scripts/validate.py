@@ -40,6 +40,7 @@ from lab_inventory import (
     lab_name,
     lab_status,
 )
+from openlabs_contract import collect_metadata_errors, load_lab_metadata
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LABS_DIR = REPO_ROOT / "labs"
@@ -48,10 +49,8 @@ TRACKS = {"web", "binary", "crypto", "network", "osint"}
 DIFFICULTIES = {"easy", "medium", "hard", "insane"}
 
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
-HASH_RE = re.compile(r"^[0-9a-f]{64}$")
 FLAG_PLAINTEXT_RE = re.compile(r"duck\{[a-z0-9_]{16,40}\}")
 
-REQUIRED_KEYS = ("name", "track", "difficulty", "description", "flag_hash")
 STATUSES = frozenset({"experimental", "supported"})
 COMPOSE_NAMES = (
     "docker-compose.yml",
@@ -59,29 +58,6 @@ COMPOSE_NAMES = (
     "compose.yml",
     "compose.yaml",
 )
-
-
-def parse_flat_yaml(text: str) -> dict[str, str]:
-    """Parse a flat key: value mapping. Ignores comments and blank lines."""
-    data: dict[str, str] = {}
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or ":" not in line:
-            continue
-        key, _, value = line.partition(":")
-        value = value.strip()
-        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
-            value = value[1:-1]
-        data[key.strip()] = value
-    return data
-
-
-def parse_bracket_list(text: str) -> list[str]:
-    """Parse `[a, b]` into `["a", "b"]`. Empty or malformed input yields []."""
-    text = text.strip()
-    if not (text.startswith("[") and text.endswith("]")):
-        return []
-    return [item.strip() for item in text[1:-1].split(",") if item.strip()]
 
 
 def check_lab_status(meta: dict[str, str]) -> list[str]:
@@ -130,43 +106,14 @@ def check_lab(lab: Path) -> list[str]:
     if not meta_path.is_file():
         return errors + ["missing lab.yml"]
 
-    meta = parse_flat_yaml(meta_path.read_text(encoding="utf-8"))
-
-    for key in REQUIRED_KEYS:
-        if not meta.get(key):
-            errors.append(f"lab.yml: missing or empty `{key}`")
-    if errors and any("missing or empty" in e for e in errors):
-        return errors
-
-    name = meta["name"]
-    if not NAME_RE.match(name):
-        errors.append(f"lab.yml: `name` {name!r} must be lowercase and hyphenated")
-    elif name != lab.name:
-        errors.append(f"lab.yml: `name` {name!r} does not match directory {lab.name!r}")
-
-    if meta["track"] not in TRACKS:
-        errors.append(f"lab.yml: `track` must be one of {sorted(TRACKS)}")
-    elif lab.parent.name not in TRACKS:
-        errors.append(f"directory {lab.parent.name!r} is not a track ({sorted(TRACKS)})")
-
-    if meta["difficulty"] not in DIFFICULTIES:
-        errors.append(f"lab.yml: `difficulty` must be one of {sorted(DIFFICULTIES)}")
-
-    if not HASH_RE.match(meta["flag_hash"]):
-        errors.append("lab.yml: `flag_hash` must be 64 lowercase hex characters")
-
-    errors.extend(check_lab_status(meta))
-
-    techniques_raw = meta.get("techniques", "")
-    if techniques_raw:
-        techniques = parse_bracket_list(techniques_raw)
-        if not techniques:
-            errors.append("lab.yml: `techniques` must be a bracket list like `[idor, ssrf]`")
-        for slug in techniques:
+    errors.extend(collect_metadata_errors(lab))
+    result = load_lab_metadata(meta_path)
+    if result.record is not None:
+        for slug in result.record.techniques:
             if not NAME_RE.match(slug):
-                errors.append(f"lab.yml: technique {slug!r} must be lowercase and hyphenated")
-            elif not (REPO_ROOT / "content" / "technique" / f"{slug}.mdx").is_file():
-                errors.append(f"lab.yml: technique {slug!r} has no page at content/technique/{slug}.mdx")
+                errors.append(
+                    f"lab.yml: technique {slug!r} must be lowercase and hyphenated"
+                )
 
     for file in (meta_path, brief):
         if file.is_file() and FLAG_PLAINTEXT_RE.search(file.read_text(encoding="utf-8")):

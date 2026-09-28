@@ -37,20 +37,25 @@ class LabRecord:
 
 
 def lab_status(lab: Path) -> str:
-    from validate import parse_flat_yaml
+    from openlabs_contract import load_lab_metadata
 
-    meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8"))
-    raw = meta.get("status", "").strip()
+    result = load_lab_metadata(lab / "lab.yml")
+    if result.record is None:
+        return "invalid"
+    raw = result.record.status.strip()
     if raw in STATUSES:
         return raw
     return "invalid"
 
 
 def lab_name(lab: Path) -> str:
-    from validate import parse_flat_yaml
+    from openlabs_contract import load_lab_metadata
 
-    meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8"))
-    return meta.get("name", lab.name).strip() or lab.name
+    result = load_lab_metadata(lab / "lab.yml")
+    if result.record is None:
+        return lab.name
+    name = result.record.name.strip()
+    return name or lab.name
 
 
 def in_selection(status: str, selection: str) -> bool:

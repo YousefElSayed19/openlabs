@@ -26,7 +26,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
 from check import flag_stage, read_flag_hashes  # noqa: E402
-from validate import check_lab, check_compose, parse_flat_yaml  # noqa: E402
+from openlabs_contract import legacy_string_map, load_lab_metadata  # noqa: E402
+from validate import check_lab, check_compose  # noqa: E402
 
 LAB = REPO_ROOT / "labs" / "web" / "duck-cross"
 COMPOSE_FILE = LAB / "docker-compose.yml"
@@ -153,7 +154,11 @@ def level_l0(report: RunReport) -> None:
     errors = check_lab(LAB)
     if errors:
         report.add("L0", False, started, "; ".join(errors))
-    meta = parse_flat_yaml((LAB / "lab.yml").read_text(encoding="utf-8"))
+    result = load_lab_metadata(LAB / "lab.yml")
+    if result.record is None:
+        report.add("L0", False, started, "lab.yml failed metadata parse")
+        return
+    meta = legacy_string_map(result.record)
     if meta.get("status") != "supported":
         report.add("L0", False, started, "lab.yml status must be supported for reference proof")
     if meta.get("name") != "duck-cross":

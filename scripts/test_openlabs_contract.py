@@ -3,18 +3,19 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
+SCRIPTS = REPO_ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
 
 from openlabs_contract import (  # noqa: E402
     load_lab_metadata,
-    legacy_string_map,
     validate_lab_context,
 )
-from validate import LABS_DIR, parse_flat_yaml, parse_bracket_list  # noqa: E402
+from validate import LABS_DIR  # noqa: E402
 
 FIXTURES = REPO_ROOT / "scripts" / "fixtures" / "openlabs_contract"
 
@@ -28,6 +29,12 @@ INVALID_CASES = (
     ("invalid/unknown-field", "contract.parse.unknown_field"),
     ("invalid/indented-key", "contract.parse.indented_key"),
 )
+
+FORBIDDEN_PARSER_DEFS = (
+    re.compile(r"^\s*def parse_flat_yaml\s*\(", re.MULTILINE),
+    re.compile(r"^\s*def parse_lab_yml\s*\(", re.MULTILINE),
+)
+PARSER_EXEMPT = frozenset({"openlabs_contract.py"})
 
 
 def run_fixture_cases() -> int:
@@ -58,24 +65,7 @@ def run_fixture_cases() -> int:
     return 0
 
 
-def compare_legacy_fields(record_map: dict[str, str], legacy: dict[str, str]) -> list[str]:
-    mismatches: list[str] = []
-    keys = ("name", "track", "difficulty", "description", "flag_hash", "status")
-    for key in keys:
-        if record_map.get(key) != legacy.get(key):
-            mismatches.append(f"{key}: {record_map.get(key)!r} != {legacy.get(key)!r}")
-    legacy_techniques = parse_bracket_list(legacy.get("techniques", ""))
-    record_techniques = parse_bracket_list(record_map.get("techniques", "[]"))
-    if legacy_techniques != record_techniques:
-        mismatches.append(f"techniques: {record_techniques!r} != {legacy_techniques!r}")
-    for optional in ("checkpoint_flag_hash", "port"):
-        if legacy.get(optional, "").strip() != record_map.get(optional, "").strip():
-            if legacy.get(optional) or record_map.get(optional):
-                mismatches.append(f"{optional}: {record_map.get(optional)!r} != {legacy.get(optional)!r}")
-    return mismatches
-
-
-def run_catalog_compatibility() -> int:
+def run_catalog_context() -> int:
     failures = 0
     labs: list[Path] = []
     for track in sorted(LABS_DIR.iterdir()):
@@ -93,14 +83,6 @@ def run_catalog_compatibility() -> int:
             for diag in result.diagnostics:
                 print(f"  [{diag.key}] {diag.format()}")
             continue
-        legacy = parse_flat_yaml(yml.read_text(encoding="utf-8"))
-        mismatches = compare_legacy_fields(legacy_string_map(result.record), legacy)
-        if mismatches:
-            failures += 1
-            print(f"{lab.relative_to(REPO_ROOT)}:")
-            for line in mismatches:
-                print(f"  {line}")
-            continue
         context = validate_lab_context(result.record, lab)
         if context:
             failures += 1
@@ -108,14 +90,32 @@ def run_catalog_compatibility() -> int:
             for diag in context:
                 print(f"  [{diag.key}] {diag.format()}")
     if failures:
-        print(f"catalog compatibility: failed {failures} labs")
+        print(f"catalog context: failed {failures} labs")
         return 1
-    print(f"catalog compatibility: passed {len(labs)} labs")
+    print(f"catalog context: passed {len(labs)} labs")
+    return 0
+
+
+def run_no_duplicate_parsers() -> int:
+    failures = 0
+    for path in sorted(SCRIPTS.rglob("*.py")):
+        if path.name in PARSER_EXEMPT or path.name.startswith("test_"):
+            continue
+        text = path.read_text(encoding="utf-8")
+        for pattern in FORBIDDEN_PARSER_DEFS:
+            if pattern.search(text):
+                failures += 1
+                print(f"{path.relative_to(REPO_ROOT)}: duplicate lab.yml parser definition")
+                break
+    if failures:
+        print(f"duplicate parsers: failed {failures} files")
+        return 1
+    print("duplicate parsers: none outside openlabs_contract.py")
     return 0
 
 
 def main() -> int:
-    for step in (run_fixture_cases, run_catalog_compatibility):
+    for step in (run_fixture_cases, run_catalog_context, run_no_duplicate_parsers):
         code = step()
         if code != 0:
             return code
