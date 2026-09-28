@@ -261,6 +261,22 @@ def escape_cell(text: str) -> str:
     return text.replace("|", "\\|").replace("\n", " ")
 
 
+def wiki_content_for_check(text: str) -> str:
+    """Compare wiki bodies without the rolling reviewed-on line.
+
+    That line follows ``HEAD`` commit date and drifts on every merge to ``main``
+    even when the catalog manifest is unchanged, which breaks CI after deps-only
+    merges. Regenerate the full page with ``--write-wiki`` when inventory data
+    changes.
+    """
+    kept: list[str] = []
+    for line in text.splitlines():
+        if line.startswith("Reviewed on `"):
+            continue
+        kept.append(line)
+    return "\n".join(kept).rstrip() + "\n"
+
+
 def render_wiki(report: dict) -> str:
     cat = report["catalog"]
     lines = [
@@ -474,7 +490,7 @@ def main() -> int:
         if args.wiki:
             expected = render_wiki(report)
             actual = args.wiki.read_text(encoding="utf-8") if args.wiki.is_file() else ""
-            if actual != expected:
+            if wiki_content_for_check(actual) != wiki_content_for_check(expected):
                 print(
                     f"wiki stale: regenerate with --write-wiki {args.wiki}",
                     file=sys.stderr,
