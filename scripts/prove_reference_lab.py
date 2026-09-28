@@ -25,8 +25,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from check import flag_stage, read_flag_hashes  # noqa: E402
-from openlabs_contract import legacy_string_map, load_lab_metadata  # noqa: E402
+from check import flag_stage  # noqa: E402
+from openlabs_contract import legacy_string_map, load_lab_metadata, read_player_flag_hashes  # noqa: E402
 from validate import check_lab, check_compose  # noqa: E402
 
 LAB = REPO_ROOT / "labs" / "web" / "duck-cross"
@@ -215,7 +215,7 @@ def level_l5(report: RunReport) -> None:
         _, public_body = http_get(f"/api/reports/{report_id}")
         if FLAG_RE.search(public_body):
             report.add("L5", False, started, f"flag leaked in public report {report_id}")
-    stage = flag_stage(flag, read_flag_hashes(LAB))
+    stage = flag_stage(flag, read_player_flag_hashes(LAB))
     if stage != "final":
         report.add("L5", False, started, "checker rejected intended flag")
     report.add("L5", True, started, "intended IDOR path verifies with check.py")
