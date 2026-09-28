@@ -2,7 +2,17 @@
   "workflow_file": ".github/workflows/labs.yml",
   "required_check": "CI required",
   "full_run_events": ["push", "workflow_dispatch"],
+  "full_run_pull_request_actors": ["dependabot[bot]"],
   "examples": [
+    {
+      "change": "dependabot: package.json only (root site deps)",
+      "actor": "dependabot[bot]",
+      "run_validate": true,
+      "run_security": true,
+      "run_content": true,
+      "run_pdf": true,
+      "run_reference": true
+    },
     {
       "change": "scripts/validate_issue_forms.py only",
       "run_validate": true,

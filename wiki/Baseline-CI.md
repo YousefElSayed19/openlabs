@@ -31,10 +31,16 @@ pushes stop expensive work.
 Pull requests run **Detect change scope** first, then only the jobs marked
 `true` in the step summary.
 
+**Dependabot pull requests** always run the full baseline (same jobs as `push`
+to `main`). Root `package.json` / lockfile bumps only matched the content
+scope before M0-08 follow-up, which skipped **Validate labs** (including the
+M0 wiki check) on the PR but ran it on merge to `main`.
+
 ## Change-to-job matrix
 
 | Change example | Validate | Security | Content | PDF | duck-cross proof |
 |:---|:---:|:---:|:---:|:---:|:---:|
+| Dependabot: root `package.json` only | yes | yes | yes | yes | yes |
 | `scripts/validate_issue_forms.py` only | yes | no | no | no | no |
 | `templates/labsheet.cls` only | no | no | no | yes | no |
 | `content/**/*.mdx` only | no | no | yes | no | no |
