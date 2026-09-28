@@ -1,16 +1,16 @@
-# M1 contract decisions (draft)
+# M1 contract decisions (approved)
 
 Decision record for milestone **M1 - OpenLabs contract**. It inventories current
-`lab.yml` consumers, records observed parser behavior, and proposes the v1
-contract boundary. Senior maintainer approval is required before **M1-02** or
-**M1-03** merge.
+`lab.yml` consumers, records observed parser behavior, and defines the v1
+contract boundary. Senior maintainer approval is recorded below; **M1-02** and
+**M1-03** may proceed on this basis.
 
 - **Issue:** [#104 M1-01](https://github.com/duckurity/openlabs/issues/104)
 - **Baseline reviewed:** `main` at `88a61f9dc6be6f3f8ceb1883eb9bb5b46b8a7a42`
 - **Catalog at baseline:** 20 catalogued labs (1 `supported`, 19 `experimental`), 5 uncatalogued directories
-- **Record status:** draft awaiting maintainer sign-off (see [Approval](#approval))
+- **Record status:** **approved** (see [Approval](#approval))
 
-## Decision summary (proposed v1)
+## Decision summary (v1)
 
 | Item | Proposed choice |
 |:---|:---|
@@ -197,10 +197,9 @@ rebase and add `contract_version: 1` (and required keys per this record).
 
 | Reviewer | Date | Outcome |
 |:---|:---|:---|
-| _Senior maintainer_ | _pending_ | Approve or revise v1 field list, YAML subset, and paths before M1-02 / M1-03 |
+| M9nx | 2026-09-29 | Approved v1 field list, YAML subset, and canonical paths |
 
-When approved, update **Record status** at the top to `approved` and link the
-review comment or pull request.
+Maintainer sign-off unlocks **M1-02** and **M1-03** per [#104](https://github.com/duckurity/openlabs/issues/104).
 
 ---
 
