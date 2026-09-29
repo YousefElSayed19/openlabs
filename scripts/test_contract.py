@@ -17,6 +17,7 @@ STEPS = (
     "test_cli_contract_fixtures.py",
     "test_openlabs_cli.py",
     "test_openlabs_issue.py",
+    "test_openlabs_lab_discovery.py",
 )
 
 

@@ -80,6 +80,7 @@ python3 scripts/validate.py              # structure + metadata
 python3 scripts/test_contract.py         # contract conformance gate (M1-08)
 python3 scripts/test_openlabs_cli.py     # openlabs CLI core (M2-02)
 python3 scripts/test_openlabs_issue.py     # issue explain and bundle (M2-03)
+python3 scripts/test_openlabs_lab_discovery.py  # lab list and selection (M2-04)
 ./openlabs --help                        # CLI entry (M2-02)
 python3 scripts/validate_issue_forms.py   # issue form labels and intake links
 python3 scripts/validate.py --compose    # + docker compose config

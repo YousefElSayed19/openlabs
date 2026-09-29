@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from openlabs_cli.commands.issue import handle_issue
+from openlabs_cli.commands.lab import handle_lab
 from openlabs_cli.context import CliContext
 from openlabs_cli.envelope import CliResult
 from openlabs_cli.errors import UsageError
@@ -22,16 +23,6 @@ def handle_doctor(ctx: CliContext, args: list[str]) -> CliResult:
     if args and args[0] not in {"run", "help", "--help"}:
         raise UsageError(f"unknown doctor action {args[0]!r}")
     return CliResult.not_implemented("doctor", "openlabs doctor")
-
-
-def handle_lab(ctx: CliContext, args: list[str]) -> CliResult:
-    _ = ctx
-    if not args:
-        raise UsageError("lab requires an action")
-    action = args[0]
-    result = CliResult.not_implemented("lab", f"openlabs lab {action}")
-    result.data["action"] = action
-    return result
 
 
 __all__ = [
