@@ -6,5 +6,8 @@ description: One line shown in the lab index.
 flag_hash: 0000000000000000000000000000000000000000000000000000000000000000
 status: experimental
 techniques: []
+# Optional v1 fields (see contracts/lab.schema.json):
+# checkpoint_flag_hash: 0000000000000000000000000000000000000000000000000000000000000000
+# port: 8080
 # Add slugs that have pages under content/technique/, for example:
 # techniques: [idor]
