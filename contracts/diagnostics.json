@@ -1,0 +1,171 @@
+{
+  "contract_version": 1,
+  "id_prefix": "OL",
+  "entries": [
+    {
+      "id": "OL-0001",
+      "key": "contract.parse.missing_file",
+      "summary": "lab.yml file is missing at the expected path"
+    },
+    {
+      "id": "OL-0002",
+      "key": "contract.parse.invalid_encoding",
+      "summary": "lab.yml is not valid UTF-8"
+    },
+    {
+      "id": "OL-0003",
+      "key": "contract.parse.indented_key",
+      "summary": "lab.yml uses indented mapping syntax, which v1 rejects"
+    },
+    {
+      "id": "OL-0004",
+      "key": "contract.parse.unknown_field",
+      "summary": "lab.yml contains an unknown top-level field"
+    },
+    {
+      "id": "OL-0005",
+      "key": "contract.parse.duplicate_key",
+      "summary": "lab.yml repeats a top-level field"
+    },
+    {
+      "id": "OL-0006",
+      "key": "contract.parse.unsupported_list_syntax",
+      "summary": "lab.yml uses YAML list syntax instead of a bracket list"
+    },
+    {
+      "id": "OL-0007",
+      "key": "contract.parse.unsupported_block_scalar",
+      "summary": "lab.yml uses block scalar syntax, which v1 rejects"
+    },
+    {
+      "id": "OL-0008",
+      "key": "contract.parse.unterminated_quote",
+      "summary": "lab.yml has an unterminated quoted value"
+    },
+    {
+      "id": "OL-0009",
+      "key": "contract.parse.invalid_scalar",
+      "summary": "lab.yml has an invalid quoted scalar"
+    },
+    {
+      "id": "OL-0010",
+      "key": "contract.parse.invalid_techniques",
+      "summary": "techniques must be a bracket list"
+    },
+    {
+      "id": "OL-0011",
+      "key": "contract.parse.invalid_contract_version",
+      "summary": "contract_version must be integer 1"
+    },
+    {
+      "id": "OL-0012",
+      "key": "contract.parse.unsupported_contract_version",
+      "summary": "contract_version is not supported in this milestone"
+    },
+    {
+      "id": "OL-0013",
+      "key": "contract.parse.invalid_port",
+      "summary": "port must be an integer"
+    },
+    {
+      "id": "OL-0014",
+      "key": "contract.parse.missing_required",
+      "summary": "lab.yml is missing a required field"
+    },
+    {
+      "id": "OL-0015",
+      "key": "contract.parse.empty_required",
+      "summary": "lab.yml has an empty required field"
+    },
+    {
+      "id": "OL-0016",
+      "key": "contract.schema.unknown_property",
+      "summary": "record contains an unknown property after parsing"
+    },
+    {
+      "id": "OL-0017",
+      "key": "contract.schema.missing_required_property",
+      "summary": "record is missing a required property"
+    },
+    {
+      "id": "OL-0018",
+      "key": "contract.schema.invalid_contract_version",
+      "summary": "record contract_version must be 1"
+    },
+    {
+      "id": "OL-0019",
+      "key": "contract.schema.invalid_name",
+      "summary": "record name must be a lowercase hyphenated slug"
+    },
+    {
+      "id": "OL-0020",
+      "key": "contract.schema.invalid_track",
+      "summary": "record track must be a supported track enum"
+    },
+    {
+      "id": "OL-0021",
+      "key": "contract.schema.invalid_difficulty",
+      "summary": "record difficulty must be a supported enum"
+    },
+    {
+      "id": "OL-0022",
+      "key": "contract.schema.invalid_description",
+      "summary": "record description must be a non-empty string"
+    },
+    {
+      "id": "OL-0023",
+      "key": "contract.schema.invalid_flag_hash",
+      "summary": "record flag_hash must be 64 lowercase hex digits"
+    },
+    {
+      "id": "OL-0024",
+      "key": "contract.schema.invalid_status",
+      "summary": "record status must be experimental or supported"
+    },
+    {
+      "id": "OL-0025",
+      "key": "contract.schema.invalid_techniques_type",
+      "summary": "record techniques must be an array"
+    },
+    {
+      "id": "OL-0026",
+      "key": "contract.schema.invalid_technique_slug",
+      "summary": "record techniques entry must be a slug"
+    },
+    {
+      "id": "OL-0027",
+      "key": "contract.schema.duplicate_technique",
+      "summary": "record techniques contains a duplicate slug"
+    },
+    {
+      "id": "OL-0028",
+      "key": "contract.schema.invalid_checkpoint_flag_hash",
+      "summary": "record checkpoint_flag_hash must be 64 lowercase hex digits"
+    },
+    {
+      "id": "OL-0029",
+      "key": "contract.schema.invalid_port",
+      "summary": "record port must be an integer from 1 to 65535"
+    },
+    {
+      "id": "OL-0030",
+      "key": "contract.context.name_directory_mismatch",
+      "summary": "name does not match the lab directory basename"
+    },
+    {
+      "id": "OL-0031",
+      "key": "contract.context.track_directory_mismatch",
+      "summary": "track does not match the parent directory track"
+    },
+    {
+      "id": "OL-0032",
+      "key": "contract.context.technique_page_missing",
+      "summary": "technique slug has no content/technique page"
+    },
+    {
+      "id": "OL-0033",
+      "key": "contract.context.invalid_track_directory",
+      "summary": "lab directory is not under a supported track folder"
+    }
+  ]
+}
