@@ -91,9 +91,10 @@ def test_repo_layout_invalid() -> None:
 
 def test_dry_run_flag_reaches_envelope() -> None:
     code, out, _err = _run(["--json", "--dry-run", "lab", "list"])
-    assert code == 1
+    assert code == 0
     payload = _validate_json(out, label="dry-run.json")
     assert payload["dry_run"] is True
+    assert payload["data"]["action"] == "list"
 
 
 def test_redaction_in_diagnostic_message() -> None:
