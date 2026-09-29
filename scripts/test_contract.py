@@ -15,6 +15,7 @@ STEPS = (
     "test_contract_schema.py",
     "test_diagnostic_registry.py",
     "test_cli_contract_fixtures.py",
+    "test_openlabs_cli.py",
 )
 
 
