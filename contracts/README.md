@@ -27,25 +27,23 @@ prove repository layout by itself.
 
 ### Repository-context rules (not in JSON Schema)
 
-These stay in `scripts/validate.py` until M1-04 moves them into the shared
-contract module:
+Enforced in `scripts/openlabs_contract.py` and `scripts/validate.py`:
 
 | Rule | Where enforced today |
 |:---|:---|
-| `name` equals directory basename | `validate.check_lab` |
-| `track` equals parent directory name | `validate.check_lab` |
-| Each `techniques` slug has `content/technique/<slug>.mdx` | `validate.check_lab` |
-| No plaintext `duck{...}` in `lab.yml` or lab `README.md` | `validate.check_lab` |
-| Compose file and README sections present | `validate.check_lab` (structure, not schema) |
+| `name` equals directory basename | `validate_lab_context` / `check_lab` |
+| `track` equals parent directory name | `validate_lab_context` / `check_lab` |
+| Each `techniques` slug has `content/technique/<slug>.mdx` | `validate_lab_context` / `check_lab` |
+| No plaintext `duck{...}` in `lab.yml` or lab `README.md` | `check_lab` |
+| Compose file and README sections present | `check_lab` (structure, not schema) |
 | `supported` promotion needs L0-L6 proof | `prove_reference_lab.py`, governance docs |
 
-### YAML authoring surface (M1 v1)
+### YAML authoring surface (v1 frozen on main)
 
-The approved flat subset is documented in `wiki/M1-Contract-Decisions.md`. Parsing
-behavior is implemented in M1-03 (`scripts/openlabs_contract.py`). Until M1-06,
-on-disk `lab.yml` files may omit `contract_version`; tests can still prove each
-catalogued lab **represents** v1 by supplying `contract_version: 1` in the JSON
-record used for schema checks.
+The approved flat subset is documented in `wiki/M1-Contract-Decisions.md` and
+frozen in `wiki/M1-09-Contract-v1-Freeze.md`. Parsing lives in
+`scripts/openlabs_contract.py`. Catalogued labs on `main` declare
+`contract_version: 1`.
 
 ### Validation command
 
@@ -63,10 +61,15 @@ and repository-context failures. `scripts/diagnostic_registry.py` loads the file
 validates ordering and uniqueness, and redacts flags, tokens, secrets, and
 home paths from diagnostic text.
 
+Lookup an id or key in `diagnostics.json`. Contributor-facing summary:
+`wiki/M1-09-Contract-v1-Freeze.md`.
+
 ## CLI and JSON v1 (`cli-v1.md`)
 
-Future `openlabs` command-line behavior, exit codes, and the `openlabs.command.v1`
-JSON envelope. Golden examples live under `scripts/fixtures/cli_contract/`.
+**Not shipped.** This file specifies future `openlabs` command-line behavior,
+exit codes, and the `openlabs.command.v1` JSON envelope. Golden examples live
+under `scripts/fixtures/cli_contract/`. Use repository scripts documented in
+`AGENTS.md` until the CLI lands in a later milestone.
 
 ```bash
 python3 scripts/test_cli_contract_fixtures.py

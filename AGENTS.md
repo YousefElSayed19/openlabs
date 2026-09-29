@@ -37,6 +37,22 @@ verifies a player's flag against the stored SHA-256 hash.
 | `.github/workflows/site.yml` | syncs content, builds the site, and deploys to Pages on `main` |
 | `.github/workflows/labs.yml` | CI: validate, security, content, PDF; required check `CI required` |
 | `.github/workflows/brand.yml` | regenerates badges, bumps asset versions, syncs the wiki |
+| `contracts/` | JSON Schema, diagnostics registry, CLI spec (spec only until shipped) |
+| `scripts/openlabs_contract.py` | shared `lab.yml` parser and v1 typed model |
+| `scripts/test_contract.py` | local and CI contract conformance gate |
+
+## Lab metadata contract (v1 frozen)
+
+- Every catalogued `lab.yml` declares `contract_version: 1`.
+- Required keys: `name`, `track`, `difficulty`, `description`, `flag_hash`, `status`,
+  `techniques` (may be `[]`). Optional: `checkpoint_flag_hash`, `port`.
+- Unknown top-level keys fail strict validation with stable `OL-####` ids from
+  `contracts/diagnostics.json`.
+- Do not add duplicate `parse_flat_yaml` or `parse_lab_yml` helpers outside
+  `openlabs_contract.py`.
+- `contracts/cli-v1.md` describes a future CLI; do not document `openlabs` as
+  shipped. Point players and contributors at `validate.py` and `check.py`.
+- Freeze record: `wiki/M1-09-Contract-v1-Freeze.md`.
 
 ## Voice rules for any text you write
 
