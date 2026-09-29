@@ -162,6 +162,7 @@ def local_ci_commands() -> list[dict]:
             "ci_job": "Validate labs",
             "commands": [
                 "python3 scripts/validate.py",
+                "python3 scripts/test_contract.py",
                 "python3 scripts/test_validate_status.py",
                 "python3 scripts/test_status_aware_inventory.py",
                 "python3 scripts/test_lab_triage_inventory.py",

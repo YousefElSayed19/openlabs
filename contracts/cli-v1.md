@@ -1,8 +1,8 @@
 # OpenLabs CLI and JSON contract v1
 
 Specification for a future `openlabs` player and maintainer CLI. M1-07 defines
-the interface only; repository scripts remain the reference implementation until
-M1-08 wires conformance tests.
+the interface only; repository scripts remain the reference implementation.
+Conformance is enforced by `python3 scripts/test_contract.py` in CI (M1-08).
 
 Human decisions live in `wiki/M1-Contract-Decisions.md`. Golden JSON examples
 live under `scripts/fixtures/cli_contract/`.

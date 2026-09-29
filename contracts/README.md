@@ -50,6 +50,7 @@ record used for schema checks.
 ### Validation command
 
 ```bash
+python3 scripts/test_contract.py
 python3 scripts/test_contract_schema.py
 python3 scripts/test_diagnostic_registry.py
 ```
