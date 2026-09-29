@@ -68,6 +68,7 @@ jobs:
               - 'scripts/openlabs_cli/**'
               - 'openlabs'
               - 'scripts/test_openlabs_cli.py'
+              - 'scripts/test_openlabs_issue.py'
               - 'contracts/cli-v1.md'
               - 'contracts/**'
               - 'scripts/test_validate*.py'
