@@ -12,7 +12,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from lab_inventory import catalog_counts, discover_catalog  # noqa: E402
-from validate import LABS_DIR, parse_flat_yaml  # noqa: E402
+from openlabs_contract import load_lab_metadata  # noqa: E402
+from validate import LABS_DIR  # noqa: E402
 
 CATALOG_VERSION = "openlabs.catalog-public.v1"
 
@@ -54,17 +55,20 @@ def read_public_lab(lab: Path) -> PublicLab | None:
     yml = lab / "lab.yml"
     if not yml.is_file():
         return None
-    meta = parse_flat_yaml(yml.read_text(encoding="utf-8"))
-    status = meta.get("status", "").strip()
+    result = load_lab_metadata(yml)
+    if result.record is None:
+        return None
+    record = result.record
+    status = record.status.strip()
     if status not in ("experimental", "supported"):
         return None
-    name = meta.get("name", lab.name).strip() or lab.name
+    name = record.name.strip() or lab.name
     return PublicLab(
         path=lab.relative_to(REPO_ROOT).as_posix(),
         name=name,
-        track=meta.get("track", lab.parent.name).strip() or lab.parent.name,
-        difficulty=meta.get("difficulty", "").strip(),
-        description=meta.get("description", "").strip(),
+        track=record.track.strip() or lab.parent.name,
+        difficulty=record.difficulty.strip(),
+        description=record.description.strip(),
         status=status,
     )
 

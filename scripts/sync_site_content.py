@@ -22,8 +22,9 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate import check_lab
+from openlabs_contract import format_validate_error, legacy_string_map, load_lab_metadata
 from score_lab import score_lab
+from validate import check_lab
 
 ROOT = Path(__file__).resolve().parent.parent
 LABS = ROOT / "labs"
@@ -37,14 +38,16 @@ PORT_RE = re.compile(r"localhost:(\d{2,5})")
 COMPOSE_PORT_RE = re.compile(r'"(\d{2,5}):\d{2,5}"')
 
 
-def parse_lab_yml(path: Path) -> dict[str, str]:
-    data: dict[str, str] = {}
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if ":" not in line:
-            continue
-        key, value = line.split(":", 1)
-        data[key.strip()] = value.strip()
-    return data
+def load_lab_meta(path: Path) -> dict[str, str]:
+    result = load_lab_metadata(path)
+    if result.record is None:
+        message = (
+            format_validate_error(result.diagnostics[0])
+            if result.diagnostics
+            else "invalid lab.yml"
+        )
+        raise ValueError(message)
+    return legacy_string_map(result.record)
 
 
 def read_port(track: str, name: str, readme: str) -> str:
@@ -444,7 +447,7 @@ def sync() -> list[str]:
         if "_template" in lab_yml.parts:
             continue
         track = lab_yml.parent.parent.name
-        meta = parse_lab_yml(lab_yml)
+        meta = load_lab_meta(lab_yml)
         readme_path = lab_yml.parent / "README.md"
         readme = (
             rewrite_lab_images(

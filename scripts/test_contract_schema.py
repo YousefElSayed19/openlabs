@@ -16,7 +16,8 @@ from contract_schema import (  # noqa: E402
     validate_lab_record,
     validate_schema_document,
 )
-from validate import LABS_DIR, parse_flat_yaml  # noqa: E402
+from openlabs_contract import load_lab_metadata  # noqa: E402
+from validate import LABS_DIR  # noqa: E402
 
 FIXTURES = REPO_ROOT / "scripts" / "fixtures" / "contract_schema"
 VALID = FIXTURES / "valid"
@@ -72,9 +73,17 @@ def run_catalog_representation() -> int:
             if lab.is_dir() and (lab / "lab.yml").is_file():
                 labs.append(lab)
     for lab in labs:
-        meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8"))
-        record = lab_yml_meta_to_record(meta)
-        errors = validate_lab_record(record, path=str(lab.relative_to(REPO_ROOT)))
+        result = load_lab_metadata(lab / "lab.yml")
+        if result.record is None:
+            failures += 1
+            print(f"{lab.relative_to(REPO_ROOT)}: failed to load lab.yml")
+            for diag in result.diagnostics:
+                print(f"  {diag.format()}")
+            continue
+        errors = validate_lab_record(
+            result.record.to_schema_dict(),
+            path=str(lab.relative_to(REPO_ROOT)),
+        )
         if errors:
             failures += 1
             print(f"{lab.relative_to(REPO_ROOT)}:")

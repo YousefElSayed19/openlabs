@@ -9,7 +9,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from validate import check_lab_status, parse_flat_yaml  # noqa: E402
+from openlabs_contract import legacy_string_map, load_lab_metadata  # noqa: E402
+from validate import check_lab_status  # noqa: E402
 
 FIXTURES = REPO_ROOT / "scripts" / "fixtures" / "validate_status"
 
@@ -25,8 +26,10 @@ def run_case(name: str) -> list[str]:
     lab_yml = FIXTURES / name / "lab.yml"
     if not lab_yml.is_file():
         raise FileNotFoundError(f"missing fixture {lab_yml}")
-    meta = parse_flat_yaml(lab_yml.read_text(encoding="utf-8"))
-    return check_lab_status(meta)
+    result = load_lab_metadata(lab_yml)
+    if result.record is None:
+        return check_lab_status({})
+    return check_lab_status(legacy_string_map(result.record))
 
 
 def main() -> int:

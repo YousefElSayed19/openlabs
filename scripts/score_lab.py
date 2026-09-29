@@ -45,7 +45,8 @@ from lab_inventory import (  # noqa: E402
     lab_name,
     lab_status,
 )
-from validate import check_lab, parse_flat_yaml  # noqa: E402
+from openlabs_contract import load_lab_metadata  # noqa: E402
+from validate import check_lab  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 LABS = ROOT / "labs"
@@ -201,8 +202,13 @@ def score_docs(lab: Path, readme: str) -> tuple[int, list[str]]:
     if not (lab / f"{lab.name}.pdf").is_file():
         score -= 3
         notes.append("docs: no challenge-sheet PDF beside the lab")
-    meta = parse_flat_yaml((lab / "lab.yml").read_text(encoding="utf-8")) if (lab / "lab.yml").is_file() else {}
-    if not meta.get("techniques", "").strip("[] "):
+    yml = lab / "lab.yml"
+    techniques = ()
+    if yml.is_file():
+        result = load_lab_metadata(yml)
+        if result.record is not None:
+            techniques = result.record.techniques
+    if not techniques:
         score -= 3
         notes.append("docs: lab.yml names no techniques")
     return max(0, score), notes

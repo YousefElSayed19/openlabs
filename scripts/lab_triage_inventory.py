@@ -30,6 +30,7 @@ SCORE_THRESHOLD = 70
 
 sys.path.insert(0, str(SCRIPTS))
 
+from openlabs_contract import legacy_string_map, load_lab_metadata  # noqa: E402
 from validate import (  # noqa: E402
     COMPOSE_NAMES,
     LABS_DIR,
@@ -37,7 +38,6 @@ from validate import (  # noqa: E402
     check_lab,
     discover_labs,
     discover_uncatalogued_dirs,
-    parse_flat_yaml,
 )
 from score_lab import score_lab  # noqa: E402
 
@@ -67,16 +67,20 @@ def structural_blockers(lab: Path) -> list[str]:
         blockers.append("missing README.md")
     yml = lab / "lab.yml"
     if yml.is_file():
-        meta = parse_flat_yaml(yml.read_text(encoding="utf-8"))
-        name = meta.get("name", "").strip()
-        if not name:
-            blockers.append("lab.yml missing name")
-        elif not NAME_RE.match(name):
-            blockers.append(f"lab.yml name {name!r} fails NAME_RE")
-        elif name != lab.name:
-            blockers.append(f"lab.yml name {name!r} does not match directory {lab.name!r}")
-        if not meta.get("status", "").strip():
-            blockers.append("lab.yml missing status")
+        result = load_lab_metadata(yml)
+        if result.record is None:
+            blockers.append("lab.yml failed metadata parse")
+        else:
+            meta = legacy_string_map(result.record)
+            name = meta.get("name", "").strip()
+            if not name:
+                blockers.append("lab.yml missing name")
+            elif not NAME_RE.match(name):
+                blockers.append(f"lab.yml name {name!r} fails NAME_RE")
+            elif name != lab.name:
+                blockers.append(f"lab.yml name {name!r} does not match directory {lab.name!r}")
+            if not meta.get("status", "").strip():
+                blockers.append("lab.yml missing status")
     elif not NAME_RE.match(lab.name):
         blockers.append(f"directory name {lab.name!r} fails NAME_RE")
     return blockers
@@ -86,8 +90,10 @@ def catalog_status(lab: Path) -> str:
     yml = lab / "lab.yml"
     if not yml.is_file():
         return "uncatalogued"
-    meta = parse_flat_yaml(yml.read_text(encoding="utf-8"))
-    raw = meta.get("status", "").strip()
+    result = load_lab_metadata(yml)
+    if result.record is None:
+        return "invalid"
+    raw = result.record.status.strip()
     if raw in ("experimental", "supported"):
         return raw
     return "invalid"

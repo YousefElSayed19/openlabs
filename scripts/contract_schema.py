@@ -128,8 +128,13 @@ def validate_lab_record(data: Any, *, path: str = "$") -> list[str]:
 
 
 def lab_yml_meta_to_record(meta: dict[str, str]) -> dict[str, Any]:
-    """Map validate.parse_flat_yaml output to a v1 JSON record for schema checks."""
-    from validate import parse_bracket_list
+    """Map flat lab.yml key strings to a v1 JSON record for schema checks."""
+
+    def parse_bracket_list(text: str) -> list[str]:
+        text = text.strip()
+        if not (text.startswith("[") and text.endswith("]")):
+            return []
+        return [item.strip() for item in text[1:-1].split(",") if item.strip()]
 
     techniques_raw = meta.get("techniques", "").strip()
     techniques = parse_bracket_list(techniques_raw) if techniques_raw else []

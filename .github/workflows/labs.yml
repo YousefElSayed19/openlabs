@@ -53,6 +53,14 @@ jobs:
               - 'scripts/sync_catalog_public.py'
               - 'scripts/score_lab.py'
               - 'scripts/prove_reference_lab.py'
+              - 'scripts/openlabs_contract.py'
+              - 'scripts/contract_schema.py'
+              - 'scripts/check.py'
+              - 'scripts/sync_site_content.py'
+              - 'scripts/make_lab_pdf.py'
+              - 'scripts/make_shapes.py'
+              - 'scripts/test_openlabs_contract.py'
+              - 'scripts/test_contract_schema.py'
               - 'scripts/test_validate*.py'
               - 'scripts/test_status*.py'
               - 'scripts/test_lab_triage*.py'
@@ -60,11 +68,14 @@ jobs:
               - 'scripts/test_baseline_report.py'
               - 'scripts/baseline_report.py'
               - 'scripts/fixtures/**'
+              - 'contracts/**'
             workflow:
               - '.github/workflows/labs.yml'
             security_scripts:
               - 'scripts/score_lab.py'
               - 'scripts/validate.py'
+              - 'scripts/openlabs_contract.py'
+              - 'scripts/check.py'
               - '.gitleaks.toml'
             reference:
               - 'labs/web/duck-cross/**'
@@ -77,6 +88,8 @@ jobs:
               - 'pnpm-lock.yaml'
               - 'scripts/sync_site_content.py'
               - 'scripts/sync_catalog_public.py'
+              - 'scripts/openlabs_contract.py'
+              - 'scripts/contract_schema.py'
             pdf:
               - 'labs/**/README.md'
               - 'labs/**/lab.yml'
@@ -169,6 +182,8 @@ jobs:
       - name: Validate lab structure and metadata
         run: |
           python3 scripts/validate.py --json validate-report.json --write-github-summary
+          python3 scripts/test_openlabs_contract.py
+          python3 scripts/test_contract_schema.py
           python3 scripts/test_validate_status.py
           python3 scripts/test_status_aware_inventory.py
           python3 scripts/test_lab_triage_inventory.py

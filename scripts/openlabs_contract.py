@@ -451,7 +451,7 @@ def validate_lab_context(record: LabMetadataRecord, lab_dir: Path) -> tuple[Cont
 
 
 def legacy_string_map(record: LabMetadataRecord) -> dict[str, str]:
-    """Temporary adapter for consumers expecting validate.parse_flat_yaml shape."""
+    """String map for callers that still expect flat lab.yml key strings."""
     data: dict[str, str] = {
         "contract_version": str(record.contract_version),
         "name": record.name,
@@ -467,3 +467,108 @@ def legacy_string_map(record: LabMetadataRecord) -> dict[str, str]:
     if record.port is not None:
         data["port"] = str(record.port)
     return data
+
+
+TRACKS = frozenset({"web", "binary", "crypto", "network", "osint"})
+
+PLAYER_HASH_LINE_RE = re.compile(r"^(flag_hash|checkpoint_flag_hash): ([0-9a-f]{64})$")
+PLAYER_HASH_PREFIX_RE = re.compile(r"^[ \t]*(flag_hash|checkpoint_flag_hash)\b")
+
+
+def format_validate_error(diag: ContractDiagnostic) -> str:
+    """Map contract diagnostics to validate.py-style error strings."""
+    if diag.key in {"contract.parse.missing_required", "contract.parse.empty_required"} and diag.field:
+        return f"lab.yml: missing or empty `{diag.field}`"
+    if diag.key == "contract.parse.invalid_techniques":
+        return "lab.yml: `techniques` must be a bracket list like `[idor, ssrf]`"
+    if diag.key == "contract.context.name_directory_mismatch":
+        name_match = re.search(r"name '([^']*)' does not match directory '([^']*)'", diag.message)
+        if name_match:
+            return (
+                f"lab.yml: `name` {name_match.group(1)!r} does not match directory "
+                f"{name_match.group(2)!r}"
+            )
+    if diag.key == "contract.context.track_directory_mismatch":
+        track_match = re.search(
+            r"track '([^']*)' does not match directory track '([^']*)'", diag.message
+        )
+        if track_match:
+            return (
+                f"lab.yml: `track` {track_match.group(1)!r} must match directory track "
+                f"{track_match.group(2)!r}"
+            )
+    if diag.key == "contract.context.technique_page_missing":
+        slug_match = re.search(r"technique '([^']*)'", diag.message)
+        if slug_match:
+            slug = slug_match.group(1)
+            return f"lab.yml: technique {slug!r} has no page at content/technique/{slug}.mdx"
+    if diag.key == "contract.schema.invalid_field":
+        if "flag_hash" in diag.message:
+            return "lab.yml: `flag_hash` must be 64 lowercase hex characters"
+        name_match = re.search(r"invalid slug '([^']*)'", diag.message)
+        if name_match:
+            return f"lab.yml: `name` {name_match.group(1)!r} must be lowercase and hyphenated"
+        status_match = re.search(r"got '([^']*)'", diag.message)
+        if ".status:" in diag.message and status_match:
+            return (
+                f"lab.yml: `status` {status_match.group(1)!r} must be one of "
+                f"{sorted({'experimental', 'supported'})}"
+            )
+        if ".track:" in diag.message:
+            return f"lab.yml: `track` must be one of {sorted(TRACKS)}"
+        if ".difficulty:" in diag.message:
+            return f"lab.yml: `difficulty` must be one of {sorted({'easy', 'medium', 'hard', 'insane'})}"
+    if diag.line:
+        return f"lab.yml: line {diag.line}: {diag.message}"
+    return f"lab.yml: {diag.message}"
+
+
+def collect_metadata_errors(lab_dir: Path) -> list[str]:
+    """Parse and validate lab.yml metadata plus repository context."""
+    result = load_lab_metadata(lab_dir / "lab.yml")
+    errors = [format_validate_error(diag) for diag in result.diagnostics]
+    if result.record is None:
+        return errors
+    if lab_dir.parent.name not in TRACKS:
+        errors.append(
+            f"directory {lab_dir.parent.name!r} is not a track ({sorted(TRACKS)})"
+        )
+    for diag in validate_lab_context(result.record, lab_dir):
+        errors.append(format_validate_error(diag))
+    return errors
+
+
+def read_player_flag_hashes(lab_dir: Path) -> dict[str, str]:
+    """Read flag hashes for check.py with strict line formatting rules."""
+    metadata = lab_dir / "lab.yml"
+    result = load_lab_metadata(metadata)
+    if result.record is None:
+        raise ValueError(format_validate_error(result.diagnostics[0]))
+
+    hashes: dict[str, str] = {}
+    for line_number, line in enumerate(metadata.read_text(encoding="utf-8").splitlines(), start=1):
+        field = PLAYER_HASH_PREFIX_RE.match(line)
+        if field is None:
+            continue
+        key = field.group(1)
+        match = PLAYER_HASH_LINE_RE.fullmatch(line)
+        if match is None:
+            raise ValueError(
+                f"lab.yml in {lab_dir} has invalid {key} on line {line_number}; "
+                f"expected `{key}: <64 lowercase hex characters>`"
+            )
+        if key in hashes:
+            raise ValueError(f"lab.yml in {lab_dir} has duplicate {key} on line {line_number}")
+        hashes[key] = match.group(2)
+
+    if "flag_hash" not in hashes:
+        raise ValueError(f"lab.yml in {lab_dir} has no flag_hash")
+    record = result.record
+    if record.checkpoint_flag_hash and "checkpoint_flag_hash" not in hashes:
+        raise ValueError(f"lab.yml in {lab_dir} has no checkpoint_flag_hash")
+    if hashes["flag_hash"] != record.flag_hash:
+        raise ValueError(f"lab.yml in {lab_dir} has inconsistent flag_hash values")
+    checkpoint = record.checkpoint_flag_hash
+    if checkpoint and hashes.get("checkpoint_flag_hash") != checkpoint:
+        raise ValueError(f"lab.yml in {lab_dir} has inconsistent checkpoint_flag_hash values")
+    return hashes
