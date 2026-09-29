@@ -1,8 +1,10 @@
+contract_version: 1
 name: lab-name
 track: web
 difficulty: easy
 description: One line shown in the lab index.
 flag_hash: 0000000000000000000000000000000000000000000000000000000000000000
 status: experimental
-# techniques exercised, as a bracket list of content/technique slugs.
+techniques: []
+# Add slugs that have pages under content/technique/, for example:
 # techniques: [idor]
