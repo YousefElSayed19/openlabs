@@ -55,9 +55,9 @@ python3 scripts/test_diagnostic_registry.py
 
 ## Diagnostic registry v1 (`diagnostics.json`)
 
-Stable `OL-####` identifiers map symbolic contract failure keys to short
-summaries. `scripts/openlabs_contract.py` emits registry ids on parse, schema,
-and repository-context failures. `scripts/diagnostic_registry.py` loads the file,
+Stable `OL-####` identifiers map symbolic failure keys to short
+summaries. Contract parsers emit `contract.*` keys; the M2 CLI reserves
+`lifecycle.*` and `environment.*` keys documented in `contracts/cli-v1.md`.
 validates ordering and uniqueness, and redacts flags, tokens, secrets, and
 home paths from diagnostic text.
 

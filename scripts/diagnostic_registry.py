@@ -14,7 +14,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = REPO_ROOT / "contracts" / "diagnostics.json"
 
 ID_RE = re.compile(r"^OL-\d{4}$")
-KEY_RE = re.compile(r"^contract\.(parse|schema|context)\.[a-z0-9_]+$")
+KEY_RE = re.compile(
+    r"^("
+    r"contract\.(parse|schema|context)\.[a-z0-9_]+"
+    r"|lifecycle\.(interaction|platform|port|compose|state|lab)\.[a-z0-9_]+"
+    r"|environment\.docker\.[a-z0-9_]+"
+    r")$"
+)
 
 FLAG_PLAINTEXT_RE = re.compile(r"duck\{[a-z0-9_]{16,40}\}")
 HEX64_RE = re.compile(r"\b[0-9a-f]{64}\b")

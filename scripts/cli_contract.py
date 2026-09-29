@@ -14,8 +14,36 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = REPO_ROOT / "scripts" / "fixtures" / "cli_contract"
 ENVELOPE_VERSION = "openlabs.command.v1"
 COMMANDS = frozenset({"setup", "doctor", "issue", "lab"})
-LAB_ACTIONS = frozenset({"validate", "score", "check", "compose", "prove", "reset"})
-ISSUE_ACTIONS = frozenset({"bundle"})
+LAB_ACTIONS = frozenset(
+    {
+        "list",
+        "setup",
+        "start",
+        "status",
+        "verify",
+        "stop",
+        "validate",
+        "score",
+        "check",
+        "compose",
+        "prove",
+        "reset",
+    }
+)
+ISSUE_ACTIONS = frozenset({"explain", "bundle"})
+# Reserved for the M2 CLI; emitters land in M2-02+ (registry parity via test merge).
+CLI_EMITTER_KEYS = frozenset(
+    {
+        "lifecycle.interaction.non_interactive_required",
+        "lifecycle.platform.unsupported_architecture",
+        "lifecycle.port.conflict",
+        "lifecycle.compose.unsafe_container_name",
+        "lifecycle.state.interrupted",
+        "lifecycle.lab.unsupported_operation",
+        "environment.docker.client_missing",
+        "environment.docker.daemon_unavailable",
+    }
+)
 LEVELS = frozenset({f"L{i}" for i in range(7)})
 FLAG_PLAINTEXT_RE = re.compile(r"duck\{[a-z0-9_]{16,40}\}")
 
@@ -105,10 +133,11 @@ def validate_envelope(data: Any, *, path: str) -> list[str]:
     if command == "issue":
         action = data.get("data", {}).get("action")
         if action not in ISSUE_ACTIONS:
-            errors.append(f"{path}: issue data.action must be bundle")
-        bundle = data.get("data", {}).get("bundle")
-        if bundle is not None and not isinstance(bundle, dict):
-            errors.append(f"{path}: data.bundle must be an object")
+            errors.append(f"{path}: issue data.action must be one of {sorted(ISSUE_ACTIONS)}")
+        if action == "bundle":
+            bundle = data.get("data", {}).get("bundle")
+            if bundle is not None and not isinstance(bundle, dict):
+                errors.append(f"{path}: data.bundle must be an object")
     return errors
 
 

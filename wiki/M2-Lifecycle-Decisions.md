@@ -92,7 +92,7 @@ Order matches the reviewed M2 starter package.
 
 - No `./openlabs` entry point yet.
 - CLI spec lacks M2 lab lifecycle commands until M2-01 lands.
-- Contract diagnostics (`OL-0001`..`OL-0033`) do not cover environment or runtime failures until M2-03.
+- Registry reserves `OL-0034`..`OL-0041` for lifecycle and environment keys; M2-03 adds explain metadata and detectors.
 - `.openlabs/` is not gitignored until M2-06.
 - Eight experimental labs declare explicit `container_name`; lifecycle mutation must reject them until lab fixes land.
 - Final Tier 1 Docker evidence requires hosted CI (M2-09).

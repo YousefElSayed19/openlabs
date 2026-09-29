@@ -166,6 +166,46 @@
       "id": "OL-0033",
       "key": "contract.context.invalid_track_directory",
       "summary": "lab directory is not under a supported track folder"
+    },
+    {
+      "id": "OL-0034",
+      "key": "lifecycle.interaction.non_interactive_required",
+      "summary": "command needs confirmation but --non-interactive is set"
+    },
+    {
+      "id": "OL-0035",
+      "key": "lifecycle.platform.unsupported_architecture",
+      "summary": "host architecture is not supported for guaranteed lifecycle on this lab"
+    },
+    {
+      "id": "OL-0036",
+      "key": "lifecycle.port.conflict",
+      "summary": "requested host port is occupied and policy forbids silent reassignment"
+    },
+    {
+      "id": "OL-0037",
+      "key": "lifecycle.compose.unsafe_container_name",
+      "summary": "compose file declares container_name, which breaks OpenLabs namespacing"
+    },
+    {
+      "id": "OL-0038",
+      "key": "lifecycle.state.interrupted",
+      "summary": "previous lifecycle command stopped mid-transaction; state must be reconciled"
+    },
+    {
+      "id": "OL-0039",
+      "key": "lifecycle.lab.unsupported_operation",
+      "summary": "lab status or compose safety blocks a guaranteed lifecycle operation"
+    },
+    {
+      "id": "OL-0040",
+      "key": "environment.docker.client_missing",
+      "summary": "docker client binary is not available on PATH"
+    },
+    {
+      "id": "OL-0041",
+      "key": "environment.docker.daemon_unavailable",
+      "summary": "docker daemon is not reachable"
     }
   ]
 }

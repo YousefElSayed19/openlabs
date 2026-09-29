@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+from cli_contract import CLI_EMITTER_KEYS  # noqa: E402
 from diagnostic_registry import (  # noqa: E402
     REGISTRY_PATH,
     load_registry,
@@ -48,7 +49,7 @@ def collect_emitter_keys() -> frozenset[str]:
             "contract.context.invalid_track_directory",
         }
     )
-    return frozenset(keys)
+    return frozenset(keys) | CLI_EMITTER_KEYS
 
 
 def run_document_shape() -> int:
