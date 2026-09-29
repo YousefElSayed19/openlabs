@@ -1,7 +1,8 @@
-"""Command handlers (stubs until later M2 issues)."""
+"""Command handlers."""
 
 from __future__ import annotations
 
+from openlabs_cli.commands.issue import handle_issue
 from openlabs_cli.context import CliContext
 from openlabs_cli.envelope import CliResult
 from openlabs_cli.errors import UsageError
@@ -23,16 +24,6 @@ def handle_doctor(ctx: CliContext, args: list[str]) -> CliResult:
     return CliResult.not_implemented("doctor", "openlabs doctor")
 
 
-def handle_issue(ctx: CliContext, args: list[str]) -> CliResult:
-    _ = ctx
-    if not args:
-        raise UsageError("issue requires explain OL-#### or bundle")
-    action = args[0]
-    if action not in {"explain", "bundle"}:
-        raise UsageError(f"unknown issue action {action!r}")
-    return CliResult.not_implemented("issue", f"openlabs issue {action}")
-
-
 def handle_lab(ctx: CliContext, args: list[str]) -> CliResult:
     _ = ctx
     if not args:
@@ -41,3 +32,11 @@ def handle_lab(ctx: CliContext, args: list[str]) -> CliResult:
     result = CliResult.not_implemented("lab", f"openlabs lab {action}")
     result.data["action"] = action
     return result
+
+
+__all__ = [
+    "handle_doctor",
+    "handle_issue",
+    "handle_lab",
+    "handle_setup",
+]
