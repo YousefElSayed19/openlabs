@@ -17,8 +17,8 @@ ID_RE = re.compile(r"^OL-\d{4}$")
 KEY_RE = re.compile(
     r"^("
     r"contract\.(parse|schema|context)\.[a-z0-9_]+"
-    r"|lifecycle\.(interaction|platform|port|compose|state|lab)\.[a-z0-9_]+"
-    r"|environment\.docker\.[a-z0-9_]+"
+    r"|lifecycle\.(interaction|platform|port|compose|state|lab|cli)\.[a-z0-9_]+"
+    r"|environment\.(docker|repo)\.[a-z0-9_]+"
     r")$"
 )
 
