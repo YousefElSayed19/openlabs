@@ -1,3 +1,4 @@
+contract_version: 1
 name: snapsync
 track: web
 difficulty: medium

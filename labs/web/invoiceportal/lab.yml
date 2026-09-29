@@ -1,3 +1,4 @@
+contract_version: 1
 name: invoiceportal
 description: InvoicePortal is a SaaS platform for managing company invoices.
 track: web
