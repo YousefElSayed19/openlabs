@@ -198,8 +198,10 @@ rebase and add `contract_version: 1` (and required keys per this record).
 | Reviewer | Date | Outcome |
 |:---|:---|:---|
 | M9nx | 2026-09-29 | Approved v1 field list, YAML subset, and canonical paths |
+| M9nx | 2026-09-29 | Frozen v1 on `main` (M1-09); see [M1-09 contract v1 freeze](M1-09-Contract-v1-Freeze) |
 
 Maintainer sign-off unlocks **M1-02** and **M1-03** per [#104](https://github.com/duckurity/openlabs/issues/104).
+M1-09 freeze closes the milestone.
 
 ---
 
