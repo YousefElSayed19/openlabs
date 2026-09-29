@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO_ROOT / "scripts"))
+SCRIPTS = REPO_ROOT / "scripts"
+sys.path.insert(0, str(SCRIPTS))
 
 from diagnostic_registry import (  # noqa: E402
     REGISTRY_PATH,
@@ -19,7 +21,34 @@ from diagnostic_registry import (  # noqa: E402
     validate_registry,
     validate_registry_references,
 )
-from openlabs_contract import CONTRACT_DIAGNOSTIC_KEYS  # noqa: E402
+
+EMITTER_KEY_RE = re.compile(r'key="(contract\.[^"]+)"')
+
+
+def collect_emitter_keys() -> frozenset[str]:
+    text = (SCRIPTS / "openlabs_contract.py").read_text(encoding="utf-8")
+    keys = set(EMITTER_KEY_RE.findall(text))
+    keys.discard("contract.schema.invalid_field")
+    keys.update(
+        {
+            "contract.schema.unknown_property",
+            "contract.schema.missing_required_property",
+            "contract.schema.invalid_contract_version",
+            "contract.schema.invalid_name",
+            "contract.schema.invalid_track",
+            "contract.schema.invalid_difficulty",
+            "contract.schema.invalid_description",
+            "contract.schema.invalid_flag_hash",
+            "contract.schema.invalid_status",
+            "contract.schema.invalid_techniques_type",
+            "contract.schema.invalid_technique_slug",
+            "contract.schema.duplicate_technique",
+            "contract.schema.invalid_checkpoint_flag_hash",
+            "contract.schema.invalid_port",
+            "contract.context.invalid_track_directory",
+        }
+    )
+    return frozenset(keys)
 
 
 def run_document_shape() -> int:
@@ -49,7 +78,7 @@ def run_registry_integrity() -> int:
 
 def run_reference_parity() -> int:
     registry = load_registry()
-    errors = validate_registry_references(CONTRACT_DIAGNOSTIC_KEYS, registry)
+    errors = validate_registry_references(collect_emitter_keys(), registry)
     if errors:
         print("registry references:")
         for line in errors:

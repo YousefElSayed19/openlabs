@@ -61,3 +61,12 @@ summaries. `scripts/openlabs_contract.py` emits registry ids on parse, schema,
 and repository-context failures. `scripts/diagnostic_registry.py` loads the file,
 validates ordering and uniqueness, and redacts flags, tokens, secrets, and
 home paths from diagnostic text.
+
+## CLI and JSON v1 (`cli-v1.md`)
+
+Future `openlabs` command-line behavior, exit codes, and the `openlabs.command.v1`
+JSON envelope. Golden examples live under `scripts/fixtures/cli_contract/`.
+
+```bash
+python3 scripts/test_cli_contract_fixtures.py
+```
