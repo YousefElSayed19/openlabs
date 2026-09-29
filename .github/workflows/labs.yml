@@ -60,6 +60,7 @@ jobs:
               - 'scripts/make_lab_pdf.py'
               - 'scripts/make_shapes.py'
               - 'scripts/test_openlabs_contract.py'
+              - 'scripts/test_contract.py'
               - 'scripts/test_contract_schema.py'
               - 'scripts/test_diagnostic_registry.py'
               - 'scripts/test_cli_contract_fixtures.py'
@@ -71,6 +72,7 @@ jobs:
               - 'scripts/test_lab_triage*.py'
               - 'scripts/test_sync_catalog*.py'
               - 'scripts/test_baseline_report.py'
+              - 'scripts/ci_routing.py'
               - 'scripts/baseline_report.py'
               - 'scripts/fixtures/**'
             workflow:
@@ -186,10 +188,7 @@ jobs:
       - name: Validate lab structure and metadata
         run: |
           python3 scripts/validate.py --json validate-report.json --write-github-summary
-          python3 scripts/test_openlabs_contract.py
-          python3 scripts/test_contract_schema.py
-          python3 scripts/test_diagnostic_registry.py
-          python3 scripts/test_cli_contract_fixtures.py
+          python3 scripts/test_contract.py
           python3 scripts/test_validate_status.py
           python3 scripts/test_status_aware_inventory.py
           python3 scripts/test_lab_triage_inventory.py

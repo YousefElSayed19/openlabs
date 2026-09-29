@@ -13,6 +13,8 @@ on:
       - "scripts/fixtures/m0_exit_criteria.json"
       - "scripts/fixtures/m0_branch_protection.json"
       - "scripts/test_ci_routing_matrix.py"
+      - "scripts/ci_routing.py"
+      - "scripts/test_contract.py"
       - "scripts/baseline_report.py"
       - "scripts/test_baseline_report.py"
   push:
@@ -27,6 +29,8 @@ on:
       - "scripts/fixtures/m0_exit_criteria.json"
       - "scripts/fixtures/m0_branch_protection.json"
       - "scripts/test_ci_routing_matrix.py"
+      - "scripts/ci_routing.py"
+      - "scripts/test_contract.py"
       - "scripts/baseline_report.py"
       - "scripts/test_baseline_report.py"
   workflow_dispatch:

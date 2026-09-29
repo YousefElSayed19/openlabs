@@ -61,6 +61,7 @@ verifies a player's flag against the stored SHA-256 hash.
 
 ```bash
 python3 scripts/validate.py              # structure + metadata
+python3 scripts/test_contract.py         # contract conformance gate (M1-08)
 python3 scripts/validate_issue_forms.py   # issue form labels and intake links
 python3 scripts/validate.py --compose    # + docker compose config
 python3 scripts/check.py labs/web/duck-cross

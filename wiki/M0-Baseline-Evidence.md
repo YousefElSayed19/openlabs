@@ -2,7 +2,7 @@
 
 Auditable M0 completion record for [#72](https://github.com/duckurity/openlabs/issues/72) (M0-09). Use it before enabling branch protection on `main`. Depends on [#71](https://github.com/duckurity/openlabs/issues/71) (**CI required**).
 
-Reviewed on `2026-09-28`. Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. Write `--json` when you need the reviewed git commit and full inventory snapshot.
+Reviewed on `2026-09-29`. Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. Write `--json` when you need the reviewed git commit and full inventory snapshot.
 
 ## Catalog manifest
 
@@ -93,6 +93,7 @@ Run these from a clean checkout when reproducing **CI required** scope on `main`
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/test_contract.py
 python3 scripts/test_validate_status.py
 python3 scripts/test_status_aware_inventory.py
 python3 scripts/test_lab_triage_inventory.py

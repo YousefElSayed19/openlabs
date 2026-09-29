@@ -45,7 +45,10 @@ M0 wiki check) on the PR but ran it on merge to `main`.
 | `scripts/validate_issue_forms.py` only | yes | no | no | no | no |
 | `templates/labsheet.cls` only | no | no | no | yes | no |
 | `content/**/*.mdx` only | no | no | yes | no | no |
-| `labs/web/duck-cross/**` | yes | yes | yes | yes | yes |
+| `labs/web/duck-cross/**` | yes | yes | no* | yes | yes |
+
+\* Content runs when the diff also touches `content/**`, site sync scripts, or
+root `package.json` / lockfile paths in the content filter.
 | `wiki/**` only | no | no | no | no | no |
 
 Machine-readable examples live in
