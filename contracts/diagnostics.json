@@ -206,6 +206,26 @@
       "id": "OL-0041",
       "key": "environment.docker.daemon_unavailable",
       "summary": "docker daemon is not reachable"
+    },
+    {
+      "id": "OL-0042",
+      "key": "lifecycle.cli.usage",
+      "summary": "command line usage is invalid"
+    },
+    {
+      "id": "OL-0043",
+      "key": "lifecycle.cli.internal",
+      "summary": "unexpected internal CLI failure"
+    },
+    {
+      "id": "OL-0044",
+      "key": "lifecycle.cli.not_implemented",
+      "summary": "command behavior is not implemented in this milestone slice"
+    },
+    {
+      "id": "OL-0045",
+      "key": "environment.repo.layout_invalid",
+      "summary": "current directory is not inside an OpenLabs repository root"
     }
   ]
 }

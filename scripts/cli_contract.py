@@ -42,6 +42,10 @@ CLI_EMITTER_KEYS = frozenset(
         "lifecycle.lab.unsupported_operation",
         "environment.docker.client_missing",
         "environment.docker.daemon_unavailable",
+        "environment.repo.layout_invalid",
+        "lifecycle.cli.usage",
+        "lifecycle.cli.internal",
+        "lifecycle.cli.not_implemented",
     }
 )
 LEVELS = frozenset({f"L{i}" for i in range(7)})
