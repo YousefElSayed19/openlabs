@@ -103,3 +103,5 @@ Documentation-only changes must not alter generated catalog or site output.
 | M9nx | 2026-09-29 | Frozen contract v1 on `main`; contributor docs aligned with schema |
 
 Maintainer sign-off closes milestone **M1** per [#104](https://github.com/duckurity/openlabs/issues/104).
+Follow-on work is tracked under milestone **M2 - One-command lab lifecycle** in
+[M2 lifecycle decisions](M2-Lifecycle-Decisions) ([#124 M2-01](https://github.com/duckurity/openlabs/issues/124)).
