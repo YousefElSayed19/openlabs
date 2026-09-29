@@ -51,4 +51,13 @@ record used for schema checks.
 
 ```bash
 python3 scripts/test_contract_schema.py
+python3 scripts/test_diagnostic_registry.py
 ```
+
+## Diagnostic registry v1 (`diagnostics.json`)
+
+Stable `OL-####` identifiers map symbolic contract failure keys to short
+summaries. `scripts/openlabs_contract.py` emits registry ids on parse, schema,
+and repository-context failures. `scripts/diagnostic_registry.py` loads the file,
+validates ordering and uniqueness, and redacts flags, tokens, secrets, and
+home paths from diagnostic text.
