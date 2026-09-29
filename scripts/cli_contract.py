@@ -46,6 +46,7 @@ CLI_EMITTER_KEYS = frozenset(
         "lifecycle.cli.usage",
         "lifecycle.cli.internal",
         "lifecycle.cli.not_implemented",
+        "lifecycle.cli.unknown_diagnostic",
     }
 )
 LEVELS = frozenset({f"L{i}" for i in range(7)})

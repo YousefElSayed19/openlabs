@@ -58,8 +58,10 @@ python3 scripts/test_diagnostic_registry.py
 Stable `OL-####` identifiers map symbolic failure keys to short
 summaries. Contract parsers emit `contract.*` keys; the M2 CLI reserves
 `lifecycle.*` and `environment.*` keys documented in `contracts/cli-v1.md`.
-validates ordering and uniqueness, and redacts flags, tokens, secrets, and
-home paths from diagnostic text.
+`scripts/diagnostic_registry.py` loads the file, validates ordering and
+uniqueness, and redacts flags, tokens, secrets, and home paths from diagnostic
+text. Runtime entries from `OL-0034` onward include explain metadata for
+`openlabs issue explain`.
 
 Lookup an id or key in `diagnostics.json`. Contributor-facing summary:
 `wiki/M1-09-Contract-v1-Freeze.md`.
