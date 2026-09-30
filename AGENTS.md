@@ -87,6 +87,8 @@ python3 scripts/test_openlabs_state.py      # state and locking (M2-06)
 python3 scripts/test_openlabs_namespace.py  # compose namespacing (M2-06)
 python3 scripts/test_openlabs_port.py       # host port policy (M2-06)
 python3 scripts/test_openlabs_lab_setup.py  # lab setup transaction (M2-06)
+python3 scripts/test_openlabs_lifecycle.py  # lab start, status, stop, reset (M2-07)
+python3 scripts/test_openlabs_reset_safety.py  # reset safety and compose argv guards (M2-07)
 ./openlabs --help                        # CLI entry (M2-02)
 python3 scripts/validate_issue_forms.py   # issue form labels and intake links
 python3 scripts/validate.py --compose    # + docker compose config

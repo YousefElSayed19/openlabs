@@ -24,6 +24,8 @@ STEPS = (
     "test_openlabs_namespace.py",
     "test_openlabs_port.py",
     "test_openlabs_lab_setup.py",
+    "test_openlabs_lifecycle.py",
+    "test_openlabs_reset_safety.py",
 )
 
 
