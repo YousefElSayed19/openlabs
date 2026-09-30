@@ -32,6 +32,16 @@ def handle_lab(ctx: CliContext, args: list[str]) -> CliResult:
         from openlabs_cli.lab_setup import handle_lab_setup
 
         return handle_lab_setup(ctx, tail)
+    if action in {"start", "status", "stop", "reset"}:
+        from openlabs_cli import lab_lifecycle
+
+        handler = {
+            "start": lab_lifecycle.handle_lab_start,
+            "status": lab_lifecycle.handle_lab_status,
+            "stop": lab_lifecycle.handle_lab_stop,
+            "reset": lab_lifecycle.handle_lab_reset,
+        }[action]
+        return handler(ctx, tail)
     result = CliResult.not_implemented("lab", f"openlabs lab {action}")
     result.data["action"] = action
     return result
