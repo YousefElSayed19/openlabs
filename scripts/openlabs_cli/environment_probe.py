@@ -20,6 +20,15 @@ MIN_MEMORY_KB = 512_000
 PYTHON_MIN = (3, 12)
 
 
+def compose_probe_ok(*, exit_code: int, text: str) -> bool:
+    if exit_code != 0 or not text.strip():
+        return False
+    if re.search(r"v2|version 2", text, re.I):
+        return True
+    match = re.search(r"Docker Compose version v?(?P<major>\d+)", text, re.I)
+    return bool(match and int(match.group("major")) >= 2)
+
+
 @dataclass(frozen=True)
 class CheckResult:
     name: str
@@ -305,11 +314,11 @@ def run_environment_probe(
     if ov.compose_version is None:
         compose_code, compose_out, compose_err = _run(ctx, ["docker", "compose", "version"])
         compose_text = compose_out or compose_err
-        compose_ok = compose_code == 0 and bool(re.search(r"v2|version 2", compose_text, re.I))
+        compose_ok = compose_probe_ok(exit_code=compose_code, text=compose_text)
         compose_detail = _clip(compose_text) if compose_text else "compose unavailable"
     else:
         compose_text = ov.compose_version
-        compose_ok = bool(re.search(r"v2|version 2", compose_text, re.I))
+        compose_ok = compose_probe_ok(exit_code=0, text=compose_text)
         compose_detail = _clip(compose_text)
     checks.append(
         CheckResult(

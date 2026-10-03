@@ -2,9 +2,23 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from openlabs_cli.lab_discovery import compose_path
+
+FORBIDDEN_COMPOSE_TOKENS = frozenset({"prune", "system"})
+
+
+def assert_safe_compose_subcommand(subcommand: list[str]) -> None:
+    joined = " ".join(subcommand).lower()
+    for token in FORBIDDEN_COMPOSE_TOKENS:
+        if re.search(rf"\b{re.escape(token)}\b", joined):
+            raise ValueError(f"compose subcommand {subcommand!r} is not allowed for OpenLabs lifecycle")
+
+
+def planned_compose_step(subcommand: list[str]) -> str:
+    return "docker compose " + " ".join(subcommand)
 
 
 def override_path(repo_root: Path, slug: str) -> Path:
@@ -74,10 +88,47 @@ def compose_argv(
     container_port: int,
     subcommand: list[str],
 ) -> list[str]:
+    assert_safe_compose_subcommand(subcommand)
     files = compose_files(repo_root, lab_dir, slug, host_port=host_port, container_port=container_port)
     argv = ["docker", "compose"]
     for file in files:
         argv.extend(["-f", str(file)])
+    argv.extend(["-p", project])
+    argv.extend(subcommand)
+    return argv
+
+
+def compose_argv_from_state(
+    repo_root: Path,
+    *,
+    lab_dir: Path,
+    state: dict[str, object],
+    subcommand: list[str],
+) -> list[str]:
+    assert_safe_compose_subcommand(subcommand)
+    slug = str(state["lab"])
+    project = str(state["compose_project"])
+    host_port = int(state["host_port"])
+    container_port = int(state["container_port"])
+    compose_rel = str(state["compose_file"])
+    base = repo_root / compose_rel
+    if not base.is_file():
+        base = compose_path(lab_dir)
+    if base is None:
+        raise FileNotFoundError("compose file missing")
+    override = override_path(repo_root, slug)
+    if not override.is_file():
+        service = primary_service(lab_dir)
+        write_port_override(
+            repo_root,
+            slug=slug,
+            service=service,
+            host_port=host_port,
+            container_port=container_port,
+        )
+    argv = ["docker", "compose", "-f", str(base)]
+    if override.is_file():
+        argv.extend(["-f", str(override)])
     argv.extend(["-p", project])
     argv.extend(subcommand)
     return argv
