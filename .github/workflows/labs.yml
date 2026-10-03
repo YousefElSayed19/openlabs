@@ -76,6 +76,8 @@ jobs:
               - 'scripts/test_openlabs_namespace.py'
               - 'scripts/test_openlabs_port.py'
               - 'scripts/test_openlabs_lab_setup.py'
+              - 'scripts/test_openlabs_lifecycle.py'
+              - 'scripts/test_openlabs_reset_safety.py'
               - 'contracts/cli-v1.md'
               - 'contracts/**'
               - 'scripts/test_validate*.py'
