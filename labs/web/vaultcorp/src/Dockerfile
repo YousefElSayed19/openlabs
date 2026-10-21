@@ -31,4 +31,7 @@ EXPOSE 5000
 ENV ASPNETCORE_URLS=http://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
 
+RUN useradd --no-create-home --uid 10001 appuser
+USER appuser
+
 ENTRYPOINT ["dotnet", "VaultCorp.dll"]

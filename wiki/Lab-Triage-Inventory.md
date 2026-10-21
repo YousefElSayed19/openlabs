@@ -47,7 +47,7 @@ python3 scripts/score_lab.py --min 70 --json score-report.json
 | `labs/web/techvault` | experimental | 97 | none | docs: no challenge-sheet PDF beside the lab | maintain | maintainers | none |
 | `labs/web/threadline` | experimental | 97 | none | docs: no challenge-sheet PDF beside the lab | maintain | maintainers | none |
 | `labs/web/vault-api` | experimental | 92 | none | compose: host port not stated in the brief; docs: no challenge-sheet PDF beside the lab | maintain | maintainers | none |
-| `labs/web/vaultcorp` | experimental | 54 | none | score 54 is below threshold 70; dockerfile: no USER directive (runs as root); docs: README missing ## Brief; docs: README missing ## Setup; docs: README missing ## Goal | catalog_experimental_review | maintainers | M0-05 follow-up: L0-L6 review for vaultcorp promotion |
+| `labs/web/vaultcorp` | experimental | 97 | none | docs: lab.yml names no techniques | catalog_experimental_review | maintainers | M0-05 follow-up: L0-L6 review for vaultcorp promotion |
 
 ## Follow-up issues to file
 

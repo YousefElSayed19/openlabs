@@ -9,6 +9,27 @@
 
 ---
 
+## Brief
+
+A custom-built, multi-stage web exploitation challenge simulating a realistic SaaS application. Chains six real, independently-documented vulnerabilities into a single exploit path from anonymous visitor to Remote Code Execution.
+
+## Setup
+
+```bash
+cp .env.example .env   # then edit .env and set the real FLAG value
+docker compose up --build
+```
+
+Open `http://localhost:5000`.
+
+## Goal
+
+Chain all six stages to reach Remote Code Execution and recover the flag. Verify the solve:
+
+```bash
+python3 ../../../scripts/check.py .
+```
+
 ## What This Is
 
 A custom-built, multi-stage web exploitation challenge simulating a realistic SaaS application built with ASP.NET Core. The challenge chains six real-world vulnerabilities — each independently documented in CVEs and bug bounty reports — into a single exploit path from anonymous visitor to Remote Code Execution.

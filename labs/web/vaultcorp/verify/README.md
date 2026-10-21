@@ -21,7 +21,7 @@ To also assert the flag matches a known value (useful in CI):
 
 ```bash
 python3 verify_solve.py --base-url http://localhost:5000 \
-    --expect-flag duck{z80wxfgg31zc62xcgeq7qt77s6323iq3}
+    --expect-flag duck{...}
 ```
 
 Exit code is `0` on a successful solve (and a matching `--expect-flag`, if
