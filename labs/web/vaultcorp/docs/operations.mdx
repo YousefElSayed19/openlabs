@@ -1,0 +1,230 @@
+# Operations — VaultCorp
+
+## Service topology
+
+A single container (`vaultcorp`) runs the entire application — Razor Pages
+UI, the Hangfire dashboard/worker, and static file serving — all on port
+5000. SQLite persists to the named volume `vaultcorp_data`, mounted at
+`/app/data`. There is no second service, no reverse proxy, and no external
+dependency at runtime.
+
+```
+docker-compose.yml   -> build context: ./src, service: vaultcorp
+src/Dockerfile           -> multi-stage build (sdk -> aspnet runtime)
+src/                      -> application source
+```
+
+## Start the lab
+
+```bash
+cd "Web CTF Full"
+cp .env.example .env   # then edit .env and set the real FLAG value
+docker compose up --build -d
+```
+
+`.env` is git-ignored (`.gitignore`) — only the placeholder
+`.env.example` is committed. This keeps the plaintext flag out of every
+git-tracked file, including `docker-compose.yml` itself (it previously
+held the literal flag string as a build-arg default; that has been
+replaced with a required `${FLAG}` substitution sourced from `.env`).
+
+The app is then reachable at `http://localhost:5000`. First start also
+runs `Database.EnsureCreated()`, so no separate migration step is needed.
+
+## Configuration
+
+| Setting | Source | Notes |
+| --- | --- | --- |
+| `FLAG` | `.env` (git-ignored; `${FLAG}` substituted into the `docker-compose.yml` build arg) | Baked into `/app/flag.txt` at image build time; plaintext never appears in any git-tracked file — not `docker-compose.yml`, not `lab.yml`, not `README.md`. See "Image-layer handling of the flag" below for what this means for anyone with the built image itself, not just the running container. |
+| `ASPNETCORE_ENVIRONMENT` | `docker-compose.yml` environment | `Production` |
+| Session idle timeout | `Program.cs` (`AddSession`) | 4 hours |
+| Base images | `src/Dockerfile` | Pinned to digests (`FROM ...@sha256:...`) for both the SDK and runtime stages |
+
+## Image-layer handling of the flag
+
+`FLAG` is passed as a Docker build `ARG` and written into `/app/flag.txt`
+in a `RUN` instruction (`src/Dockerfile`), so the plaintext flag is
+embedded in that build layer of the resulting **image**, not only in the
+running container's filesystem. This has a concrete consequence beyond
+just "the container has the flag at `/app/flag.txt`, read-only":
+anyone who obtains the built image itself (e.g. via `docker save`,
+`docker history`, registry access, or inspecting a pushed image's
+layers) can recover the plaintext flag directly from the image, without
+running the container and without going through any of the six intended
+stages. Docker build args are not a secrets mechanism and are not
+expected to be — this is standard, well-documented Docker behavior, not
+a bug specific to this lab.
+
+This is an accepted, deliberate trade-off for this submission because the
+built image is never intended to be distributed, published to a
+registry, or shared with players — the lab reaches players only through
+`docker-compose.yml`, which builds a fresh image locally per
+deployment from `src/`, with the real `FLAG` value read from the
+deployer's own `.env` (not committed; see "Start the lab" above) and
+substituted at build time by whoever (author or maintainer) controls
+that `docker compose up --build`. Distributing the pre-built image
+itself, or committing the build cache/layers anywhere, would leak the
+flag and must not be done.
+If this lab is ever deployed in a way where built images are shared,
+pushed to a registry, or otherwise handed to anyone who shouldn't see the
+flag, this flag-delivery mechanism would need to change (e.g. injecting
+the flag at container **runtime**, via an environment variable or mounted
+file not baked into any image layer, rather than at build time).
+
+## Reset and temporary storage
+
+The lab has no explicit "reset" endpoint — state lives entirely in the
+SQLite volume and in-memory Hangfire storage. A full reset is:
+
+```bash
+docker compose down
+docker volume rm bin_vaultcorp_data   # or the actual volume name docker compose created
+docker compose up --build -d
+```
+
+A background job (`db-cleanup`, see Maintainer API reference below)
+already removes tenants older than 6 hours automatically, so a long-running
+instance self-prunes abandoned playthroughs without manual intervention.
+
+### Check a captured flag
+
+```bash
+sha256sum <(printf '%s' 'duck{...}')
+```
+
+...and compare against `flag_hash` in `lab.yml`.
+
+## Maintainer API reference
+
+This section documents the internal surface that exists purely as the
+intended vulnerability chain's target — it is not meant to be used by
+maintainers directly, but is recorded here since it is part of the running
+application and its behavior should be understood before touching
+anything else in `Program.cs`.
+
+- `GET /internal/api/create?type=&method=&arg0=&arg1=` — creates a Hangfire
+  job via reflection. Gated by `LocalRequestsOnlyAuthorizationFilter`
+  (loopback-only). This is the intentional RCE primitive (VC-CTF-05 in
+  `security-report.mdx`) — do not relax its loopback gate or expose it
+  further; the whole point of the challenge is that it is reachable only
+  via the SSRF chain.
+- `GET /hangfire`, `/hangfire/recurring` — Hangfire's own dashboard,
+  same loopback gate. Two recurring jobs are pre-registered:
+  `db-cleanup` (runs nightly, prunes old tenants) and `maintenance-runner`
+  (registered with `Cron.Never`, visible in the dashboard purely so the
+  `CommandExecutorJob` type is discoverable there — this is the
+  intentional in-fiction breadcrumb for the chain's final stage).
+
+## Validation workflow
+
+```bash
+# 1. Build and start
+cd "Web CTF Full" && docker compose up --build -d
+
+# 2. Run the automated end-to-end solve
+cd verify
+pip install requests
+python3 verify_solve.py --base-url http://localhost:5000 \
+    --expect-flag "$(cat ../lab.yml | grep -A0 ...)"   # or paste the known flag directly
+```
+
+A successful run prints each of the 6 stages and the recovered flag, and
+exits `0`. See `validation-report.mdx` for the current evidence this
+produces.
+
+### Focused regression
+
+Re-run `verify_solve.py` after any change to `Program.cs`,
+`UrlFetchService.cs`, `CommandExecutorJob.cs`, or the Hangfire
+registration/authorization setup — these are the files every stage of the
+intended chain depends on.
+
+## Runtime controls
+
+- **Network egress:** the container's Docker network (`internal_only`)
+  was briefly set to `internal: true` for egress isolation, then
+  reverted after the author's local `docker compose up --build` run on
+  Docker Desktop (Windows) showed the published port (5000) was
+  unreachable from the host — Docker Desktop's WSL2/Hyper-V networking
+  layer does not reliably set up inbound port forwarding for an
+  `internal: true` network, unlike native Linux Docker. The intended
+  solve path never needs outbound egress (the SSRF target is always the
+  container itself), so this is a straightforward trade — real-world
+  Docker Desktop compatibility over additional defense-in-depth that the
+  solve doesn't rely on. See `security-report.mdx`'s residual risk
+  register for the implication.
+- **Filesystem:** `wwwroot` is writable (`chmod -R 777`) so
+  `CommandExecutorJob` can write output there; `/app/flag.txt` is
+  read-only (`chmod 444`) after being written at build time.
+
+## Application safeguards
+
+- Per-tenant data isolation via `TenantId` filtering on every query that
+  touches `Users`.
+- Antiforgery tokens are enforced on all player-facing POST forms
+  (Register, Login, SupportLogin, Admin/Import, Profile) by ASP.NET Core
+  Razor Pages' default `AutoValidateAntiforgeryTokenAttribute` — the
+  dashboard's own `IgnoreAntiforgeryToken = true` applies only to
+  Hangfire's dashboard routes, not to the application's own forms.
+- Outbound network egress is currently unrestricted at the Docker level
+  (see "Runtime controls" above for why) — this is a known, accepted gap,
+  not an oversight; see the residual risk register below.
+
+## Residual risk register
+
+| Risk | Status | Notes |
+| --- | --- | --- |
+| RCE primitive usable beyond the container | **Open** | `internal: true` was reverted — Docker Desktop (Windows/Mac) doesn't reliably publish ports on an internal network. The intended solve path never needs egress, but a player's own command execution is no longer network-isolated at the Docker layer. Acceptable for a single-player, locally-run lab; would need a different containment approach (e.g. an egress firewall rule, or a Linux-only deployment target) before any shared/hosted deployment. |
+| Base image supply-chain drift | Mitigated | Both Dockerfile stages pinned to digests, not floating tags |
+| Flag predictability | Mitigated | Flag body fully randomly generated per catalog rules |
+| Automated dependency/image vulnerability scan | Not yet run | No CI scanning pipeline has been run against this lab from this environment; recommend running the catalog's standard scan before merge |
+| Long-running instance resource growth | Mitigated | `db-cleanup` recurring job prunes tenants older than 6 hours |
+
+## Troubleshooting
+
+- **Build fails pulling base images:** confirm the pinned digests in
+  `src/Dockerfile` are still valid manifests (`docker buildx imagetools
+  inspect <image>@sha256:...`); Microsoft occasionally deprecates very old
+  tags, though pinned digests themselves do not expire.
+- **`verify_solve.py` times out at Stage 6:** the Hangfire worker may not
+  have picked up the job yet — increase `--poll-attempts` /
+  `--poll-interval`, or confirm the worker count (`WorkerCount = 4` in
+  `Program.cs`) hasn't been reduced to 0 in a local change.
+- **SSRF bypass stops working after a change:** confirm
+  `UrlFetchService.BlockedPatterns` still excludes `127.1` (or whichever
+  alternate literal the solve path relies on) — any change to that list
+  should be re-validated against `verify_solve.py` before merging.
+
+## Maintenance and change control
+
+Any change to `UrlFetchService.cs`, `Program.cs`'s Hangfire/authorization
+setup, or `CommandExecutorJob.cs` is change-controlled for this lab: it can
+alter or break the intended chain. Re-run the full validation workflow
+above after any such change, and update `security-report.mdx` and
+`challenge-design.mdx` if the change alters the attack path itself.
+
+## Repository hygiene
+
+- Flag plaintext lives only in `docker-compose.yml`'s `FLAG` build
+  arg — never in `lab.yml`, `README.md`, or anywhere outside `labs/`.
+- `verify/__pycache__/` and other Python build artifacts are excluded via
+  `verify/.gitignore`.
+- All narrative and maintainer documentation lives under `docs/` — the
+  original separate `documentation/` folder was folded in and removed
+  (see `docs/README.md` for what moved where).
+
+## Stop and remove
+
+```bash
+cd "Web CTF Full"
+docker compose down -v   # -v also removes the vaultcorp_data volume
+```
+
+## Appendix A. Hardening record
+
+| Date | Change | Reason |
+| --- | --- | --- |
+| This submission | Pinned both Dockerfile base images to digests | Supply-chain integrity; avoid floating-tag drift |
+| This submission | Set container network to `internal: true`, then reverted it | Attempted to contain the RCE primitive's blast radius; reverted after it broke port publishing on Docker Desktop during local verification (see Residual risk register) |
+| This submission | Regenerated flag as fully random, catalog-format-compliant | Original flag was hand-crafted and exceeded the max length |
+| This submission | Removed dead `Flag` model/table (unused, never read by the UI) | Reduce attack surface / dead code confusion for reviewers |

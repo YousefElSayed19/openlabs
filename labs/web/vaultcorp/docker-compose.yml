@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  vaultcorp:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+      args:
+        # The real flag value is NOT committed here — it is read from a
+        # local, git-ignored .env file (see .env.example) so no
+        # git-facing file ever carries the plaintext flag. Copy
+        # .env.example to .env and fill in the real FLAG before running
+        # `docker compose up --build`. The SHA-256 of the full flag
+        # string (braces included) is recorded as flag_hash in lab.yml.
+        FLAG: "${FLAG:?Set FLAG in .env — copy .env.example to .env and fill in the real flag first}"
+    container_name: vaultcorp
+    networks:
+      - internal_only
+    ports:
+      - "5000:5000"
+    volumes:
+      # Persist SQLite DB across restarts
+      - vaultcorp_data:/app/data
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+
+networks:
+  # Previously "internal: true" for egress isolation (nothing in the
+  # intended solve path needs outbound internet — the RCE is only ever
+  # used to read a local file). Reverted: on Docker Desktop (Windows/Mac,
+  # WSL2 or Hyper-V backend), an "internal: true" network's published
+  # ports are frequently NOT reachable from the host at all — Docker
+  # Desktop's gVisor/WSL2 networking layer skips the inbound DNAT setup
+  # for internal networks, unlike native Linux Docker, where published
+  # ports on an internal network normally still work. Confirmed as the
+  # cause of http://localhost:5000 being unreachable after `docker
+  # compose up --build` on Windows. Dropping the flag costs only the
+  # (non-essential, not exercised by the intended solve) egress
+  # isolation; inbound port publishing is unaffected either way.
+  internal_only: {}
+
+volumes:
+  vaultcorp_data:
