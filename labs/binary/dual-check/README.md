@@ -8,6 +8,29 @@
 inside `src/` build files (see `src/BUILD_INSTRUCTIONS.md`), never in this
 README or `lab.yml`.
 
+## Brief
+
+Two independent Windows PE binaries, game.exe and checker.exe, bound by a shared secret. Recover an obfuscated password from game.exe, then read checker.exe's decompiled code to reimplement a chained byte transform and derive the AES-128 key that decrypts the embedded flag.
+
+## Setup
+
+No install step. Run the binaries directly:
+
+```bash
+wine bin/game.exe      # or run natively on Windows
+wine bin/checker.exe
+```
+
+No server-side component and no network dependency — this is an artifact-only BYOD lab. See "Delivery model (artifact-only exception)" below for why docker-compose.yml exists anyway.
+
+## Goal
+
+Recover both passwords and the derived AES key through static analysis (a decompiler such as Ghidra), then run checker.exe to decrypt and print the flag. Verify with:
+
+```bash
+python3 check.py "duck{...}"
+```
+
 ## What this is
 
 A custom-built, two-binary reverse engineering crackme (`game.exe` + `checker.exe`), designed and built from scratch for this task, then solved end-to-end to validate it and produce the evidence below.

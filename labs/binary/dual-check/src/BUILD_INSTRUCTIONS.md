@@ -38,7 +38,7 @@ Run it and follow this order:
 Run it and follow this order:
 1. Password: `ch3ck3r_unl0ck_key` (from `game.exe`)
 2. Hex value: `2bb50ef99ea5dcea300e6efd3d8085e4`
-3. It should print the flag: `duck{eu2nnbgpi7ulyg01q6vdt9be1mqi9aic}`
+3. It should print the flag: `duck{...}`
 
 > Note: only `checker.c`'s embedded `FLAG_CIPHERTEXT` changed (to match the
 > catalog's `^duck\{[a-z0-9_]{16,40}\}$` flag format — the previous flag
