@@ -11,7 +11,7 @@ Reviewed on `2026-10-23`. Regenerate with `python3 scripts/m2_release_report.py 
 | CLI version | `0.2.0` |
 | Command envelope | `openlabs.command.v1` |
 | Lab contract | `1` |
-| Reviewed commit | `578d351034c6` |
+| Reviewed commit | `c571d4636e78` |
 | Release evidence commit | `d6ebe8116452` |
 
 ## Supported manifest
