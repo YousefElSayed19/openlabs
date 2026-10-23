@@ -1,18 +1,16 @@
 # src/ — source code location
 
-The full, buildable Android Studio project for this challenge is **not duplicated** into this folder — it already lives one level up in this same repository, as its own complete Gradle project:
+The full, buildable Android Studio project for this challenge is **not included in this repository yet**. It currently exists only in the author's local development environment as its own complete Gradle project (`Mobile CTF Challenge (v2 Design)/`).
 
-```
-../../Mobile CTF Challenge (v2 Design)/
-```
+Only the pre-built `bin/NexaWallet-debug.apk` is distributed here — that is all participants ever need, since this is a BYOD artifact lab with no server-side component.
 
-That folder contains everything needed to build the APK from scratch: the Gradle wrapper, `build.gradle` files, the Android manifest, and the full Kotlin source tree (`app/src/main/java/com/example/nexawallet/...`).
+> **TODO (maintainers):** the source tree needs to be added to this repository (e.g. under `labs/binary/nexawallet/src/android-project/`) before any future rebuild or patch of the APK is possible from a clean clone. Until then, changes to the challenge logic require the original author's local project.
 
-See `BUILD_INSTRUCTIONS.md` in this folder for the exact steps.
-
-> **Reminder:** this `src/` pointer and the project it points to are for internal/organizer use only — never ship the source tree to participants. Only `bin/NexaWallet-debug.apk` goes to them.
+> **Reminder:** once added, this source tree is for internal/organizer use only — never ship it to participants.
 
 ## Source layout (for reference)
+
+This reflects the structure of the author's local project, reproduced here for documentation purposes until the source itself is committed:
 
 ```
 Mobile CTF Challenge (v2 Design)/app/src/main/java/com/example/nexawallet/
