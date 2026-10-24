@@ -16,7 +16,6 @@ A custom-built, multi-stage web exploitation challenge simulating a realistic Sa
 ## Setup
 
 ```bash
-cp .env.example .env   # then edit .env and set the real FLAG value
 docker compose up --build
 ```
 
@@ -42,8 +41,6 @@ A custom-built, multi-stage web exploitation challenge simulating a realistic Sa
 .
 │
 ├── docker-compose.yml          ← everything needed to run the challenge
-├── .env.example                ← copy to .env and set the real FLAG (never committed)
-│
 ├── docs/                        ← all written evidence/report + maintainer docs
 │   ├── README.md
 │   ├── player-briefing.mdx     ← player-facing description (no spoilers)
@@ -56,7 +53,7 @@ A custom-built, multi-stage web exploitation challenge simulating a realistic Sa
 │   ├── validation-report.mdx
 │   └── images/                 ← screenshots referenced from official-solution.mdx
 │
-└── src/                        ← full source code (private — never ship to participants)
+└── app/                        ← full source code (private — never ship to participants)
     ├── VaultCorp.csproj
     ├── Program.cs
     ├── appsettings.json
@@ -114,7 +111,6 @@ A custom-built, multi-stage web exploitation challenge simulating a realistic Sa
 ## Running the Challenge
 
 ```bash
-cp .env.example .env   # then edit .env and set the real FLAG value
 docker compose up --build
 ```
 

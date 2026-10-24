@@ -24,7 +24,7 @@ RUN chmod -R 777 /app/wwwroot
 # Flag — injected at build time from docker-compose.yml's build arg.
 # This default is only a fallback for a bare `docker build` with no
 # arg passed; the real value always comes from docker-compose.yml.
-ARG FLAG=duck{placeholder_set_me_in_docker_compose_000000000000}
+ARG FLAG=duck{ogcyy36xyw18n0zh7q10pv8n}
 RUN echo "$FLAG" > /app/flag.txt && chmod 444 /app/flag.txt
 
 EXPOSE 5000

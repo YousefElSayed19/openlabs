@@ -3,7 +3,7 @@ name: vaultcorp
 track: web
 difficulty: hard
 description: Six-stage SaaS exploit chain from client-side secret leak to SSRF-driven RCE via an unauthenticated Hangfire dashboard (CVE-2021-41238).
-flag_hash: 39a58dfd73f798ab8ea74bd4a2a9d4f2108eb8fe411ad7f2cd94734d645dc4a0
+flag_hash: f95a1894ac5384d0677fb251eeb64096aaa25e840cc72477e12de49b15d340cd
 status: experimental
 techniques: [ssrf]
 # Optional v1 fields (see contracts/lab.schema.json):

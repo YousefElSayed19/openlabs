@@ -13,7 +13,7 @@ that wasn't actually exercised.
 | Check | Method | Result |
 | --- | --- | --- |
 | Full intended chain, real deployment | Manual solve by the challenge author, local Docker Desktop build | **Pass** — recovered `duck{...}`, matching `lab.yml`'s `flag_hash` |
-| Base image digests resolve | `docker buildx imagetools inspect`, run by the author locally | **Pass** — both SDK and runtime digests in `src/Dockerfile` confirmed valid at time of pinning |
+| Base image digests resolve | `docker buildx imagetools inspect`, run by the author locally | **Pass** — both SDK and runtime digests in `app/Dockerfile` confirmed valid at time of pinning |
 | Flag format compliance | Regex check against `^duck\{[a-z0-9_]{16,40}\}$` | **Pass** |
 | `flag_hash` correctness | SHA-256 of the full flag string (braces included) | **Pass** — matches `lab.yml` |
 | Dead code removal (`Flag` model) | Exhaustive `grep` across the codebase for all references | **Pass** — no remaining references after removing the `Flags` DbSet, its generation in `TenantService`, and its cleanup in `DatabaseCleanupJob` |

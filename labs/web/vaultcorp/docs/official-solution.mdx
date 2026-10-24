@@ -335,13 +335,13 @@ http://127.1:5000/flag_out.txt
 ![Flag displayed](images/image-13.png)
 
 ```
-duck{s3rv3r_s1d3_r3qu3st_t0_h4ngf1r3_rce_ch41n}
+duck{…}
 ```
 
 > **Note (screenshot provenance):** this screenshot run predates the
 > current `lab.yml`'s `flag_hash`. The flag is generated fresh at image
 > build time (`docker-compose.yml`'s `FLAG` build arg) and the value
-> shown above (`duck{s3rv3r_s1d3_r3qu3st_t0_h4ngf1r3_rce_ch41n}`) is
+> shown above (`duck{…}`) is
 > specific to that earlier build — it will not match a freshly built
 > image's flag. The chain of steps above (Stages 1–6) is unaffected; only
 > the flag string itself changes per build. The current, correct flag

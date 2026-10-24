@@ -9,24 +9,23 @@ UI, the Hangfire dashboard/worker, and static file serving — all on port
 dependency at runtime.
 
 ```
-docker-compose.yml   -> build context: ./src, service: vaultcorp
-src/Dockerfile           -> multi-stage build (sdk -> aspnet runtime)
-src/                      -> application source
+docker-compose.yml   -> build context: ./app, service: vaultcorp
+app/Dockerfile           -> multi-stage build (sdk -> aspnet runtime)
+app/                      -> application source
 ```
 
 ## Start the lab
 
 ```bash
 cd "Web CTF Full"
-cp .env.example .env   # then edit .env and set the real FLAG value
 docker compose up --build -d
 ```
 
-`.env` is git-ignored (`.gitignore`) — only the placeholder
-`.env.example` is committed. This keeps the plaintext flag out of every
-git-tracked file, including `docker-compose.yml` itself (it previously
-held the literal flag string as a build-arg default; that has been
-replaced with a required `${FLAG}` substitution sourced from `.env`).
+The flag is defined as a fixed `ARG` default in `app/Dockerfile`. No `.env`
+file or runtime flag configuration is required. Every build produces the
+same flag, which matches the `flag_hash` recorded in `lab.yml`. The plaintext
+flag is intentionally present in the Dockerfile and is written to
+`/app/flag.txt` during image construction.
 
 The app is then reachable at `http://localhost:5000`. First start also
 runs `Database.EnsureCreated()`, so no separate migration step is needed.
@@ -35,41 +34,41 @@ runs `Database.EnsureCreated()`, so no separate migration step is needed.
 
 | Setting | Source | Notes |
 | --- | --- | --- |
-| `FLAG` | `.env` (git-ignored; `${FLAG}` substituted into the `docker-compose.yml` build arg) | Baked into `/app/flag.txt` at image build time; plaintext never appears in any git-tracked file — not `docker-compose.yml`, not `lab.yml`, not `README.md`. See "Image-layer handling of the flag" below for what this means for anyone with the built image itself, not just the running container. |
+| `FLAG` | Fixed `ARG` default in `app/Dockerfile` | Baked into `/app/flag.txt` at image build time; every build produces the same flag, matching `lab.yml`'s `flag_hash`. The fixed plaintext value is present in `app/Dockerfile`. See "Image-layer handling of the flag" below for what this means for anyone with the built image itself, not just the running container. |
 | `ASPNETCORE_ENVIRONMENT` | `docker-compose.yml` environment | `Production` |
 | Session idle timeout | `Program.cs` (`AddSession`) | 4 hours |
-| Base images | `src/Dockerfile` | Pinned to digests (`FROM ...@sha256:...`) for both the SDK and runtime stages |
+| Base images | `app/Dockerfile` | Pinned to digests (`FROM ...@sha256:...`) for both the SDK and runtime stages |
 
 ## Image-layer handling of the flag
 
-`FLAG` is passed as a Docker build `ARG` and written into `/app/flag.txt`
-in a `RUN` instruction (`src/Dockerfile`), so the plaintext flag is
-embedded in that build layer of the resulting **image**, not only in the
-running container's filesystem. This has a concrete consequence beyond
-just "the container has the flag at `/app/flag.txt`, read-only":
-anyone who obtains the built image itself (e.g. via `docker save`,
-`docker history`, registry access, or inspecting a pushed image's
-layers) can recover the plaintext flag directly from the image, without
-running the container and without going through any of the six intended
-stages. Docker build args are not a secrets mechanism and are not
-expected to be — this is standard, well-documented Docker behavior, not
-a bug specific to this lab.
+`FLAG` is defined by a fixed Docker build `ARG` default in `app/Dockerfile`
+and written into `/app/flag.txt` in a `RUN` instruction. The plaintext flag
+is therefore embedded in the Dockerfile and in the resulting **image's**
+build layer, not only in the running container's filesystem. Every build
+produces the same flag, matching the `flag_hash` in `lab.yml`. This has a
+concrete consequence beyond just "the container has the flag at
+`/app/flag.txt`, read-only": anyone who obtains the Dockerfile or the built
+image itself (e.g. via `docker save`, `docker history`, registry access, or
+inspecting a pushed image's layers) can recover the plaintext flag directly,
+without running the container and without going through any of the six
+intended stages. Docker build args are not a secrets mechanism and are not
+expected to be — this is standard, well-documented Docker behavior, not a
+bug specific to this lab.
 
 This is an accepted, deliberate trade-off for this submission because the
-built image is never intended to be distributed, published to a
-registry, or shared with players — the lab reaches players only through
-`docker-compose.yml`, which builds a fresh image locally per
-deployment from `src/`, with the real `FLAG` value read from the
-deployer's own `.env` (not committed; see "Start the lab" above) and
-substituted at build time by whoever (author or maintainer) controls
-that `docker compose up --build`. Distributing the pre-built image
-itself, or committing the build cache/layers anywhere, would leak the
-flag and must not be done.
-If this lab is ever deployed in a way where built images are shared,
-pushed to a registry, or otherwise handed to anyone who shouldn't see the
-flag, this flag-delivery mechanism would need to change (e.g. injecting
-the flag at container **runtime**, via an environment variable or mounted
-file not baked into any image layer, rather than at build time).
+flag is fixed and intentionally embedded in `app/Dockerfile` to match
+`lab.yml`'s `flag_hash`. The lab is designed for local deployment through
+`docker-compose.yml`, which builds the image from `app/`. The flag is not
+generated afresh at build time, and deployers do not need to provide a
+separate `.env` file or substitute a real `FLAG` value. Distributing the
+Dockerfile or pre-built image makes the flag recoverable and must be
+understood as part of this lab's design.
+
+If this lab is ever deployed in a way where the image or its source is
+shared with players who should not know the flag beforehand, this
+flag-delivery mechanism would need to change (e.g. injecting the flag at
+container **runtime**, via an environment variable or mounted file not
+baked into any image layer, rather than at build time).
 
 ## Reset and temporary storage
 
@@ -176,14 +175,14 @@ intended chain depends on.
 | --- | --- | --- |
 | RCE primitive usable beyond the container | **Open** | `internal: true` was reverted — Docker Desktop (Windows/Mac) doesn't reliably publish ports on an internal network. The intended solve path never needs egress, but a player's own command execution is no longer network-isolated at the Docker layer. Acceptable for a single-player, locally-run lab; would need a different containment approach (e.g. an egress firewall rule, or a Linux-only deployment target) before any shared/hosted deployment. |
 | Base image supply-chain drift | Mitigated | Both Dockerfile stages pinned to digests, not floating tags |
-| Flag predictability | Mitigated | Flag body fully randomly generated per catalog rules |
+| Flag predictability | **Known / intentional** | The flag is fixed in `app/Dockerfile` and matches `lab.yml`'s `flag_hash`. It is not randomly regenerated on each build and can be recovered from the Dockerfile or image layers. |
 | Automated dependency/image vulnerability scan | Not yet run | No CI scanning pipeline has been run against this lab from this environment; recommend running the catalog's standard scan before merge |
 | Long-running instance resource growth | Mitigated | `db-cleanup` recurring job prunes tenants older than 6 hours |
 
 ## Troubleshooting
 
 - **Build fails pulling base images:** confirm the pinned digests in
-  `src/Dockerfile` are still valid manifests (`docker buildx imagetools
+  `app/Dockerfile` are still valid manifests (`docker buildx imagetools
   inspect <image>@sha256:...`); Microsoft occasionally deprecates very old
   tags, though pinned digests themselves do not expire.
 - **`verify_solve.py` times out at Stage 6:** the Hangfire worker may not
@@ -205,8 +204,10 @@ above after any such change, and update `security-report.mdx` and
 
 ## Repository hygiene
 
-- Flag plaintext lives only in `docker-compose.yml`'s `FLAG` build
-  arg — never in `lab.yml`, `README.md`, or anywhere outside `labs/`.
+- The fixed flag plaintext is defined in `app/Dockerfile` as the `FLAG`
+  build-argument default and is intentionally embedded in the image at build
+  time. Its value matches `lab.yml`'s `flag_hash`; it is not sourced from
+  `.env` or `docker-compose.yml`.
 - `verify/__pycache__/` and other Python build artifacts are excluded via
   `verify/.gitignore`.
 - All narrative and maintainer documentation lives under `docs/` — the
@@ -226,5 +227,5 @@ docker compose down -v   # -v also removes the vaultcorp_data volume
 | --- | --- | --- |
 | This submission | Pinned both Dockerfile base images to digests | Supply-chain integrity; avoid floating-tag drift |
 | This submission | Set container network to `internal: true`, then reverted it | Attempted to contain the RCE primitive's blast radius; reverted after it broke port publishing on Docker Desktop during local verification (see Residual risk register) |
-| This submission | Regenerated flag as fully random, catalog-format-compliant | Original flag was hand-crafted and exceeded the max length |
+| This submission | Set a fixed flag in `app/Dockerfile` matching `lab.yml`'s `flag_hash` | Ensure every build produces the same catalog-compliant flag |
 | This submission | Removed dead `Flag` model/table (unused, never read by the UI) | Reduce attack surface / dead code confusion for reviewers |
