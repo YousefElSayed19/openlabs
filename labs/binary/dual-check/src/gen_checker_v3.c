@@ -69,7 +69,7 @@ static void print_array(const char *name, const unsigned char *buf, int len) {
 
 int main(void) {
     const char *password2 = "ch3ck3r_unl0ck_key";
-    const char *flag = "duck{eu2nnbgpi7ulyg01q6vdt9be1mqi9aic}";
+    const char *flag = "duck{...}";
 
     // ---- gate: SHA-256 hash of password2 ----
     char pw2_hash[65];
