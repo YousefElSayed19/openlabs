@@ -2,7 +2,7 @@
 
 Auditable M0 completion record for [#72](https://github.com/duckurity/openlabs/issues/72) (M0-09). Use it before enabling branch protection on `main`. Depends on [#71](https://github.com/duckurity/openlabs/issues/71) (**CI required**).
 
-Reviewed on `2026-10-21`. Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. Write `--json` when you need the reviewed git commit and full inventory snapshot.
+Reviewed on `2026-10-24`. Regenerate with `python3 scripts/baseline_report.py --write-wiki wiki/M0-Baseline-Evidence.md`. Write `--json` when you need the reviewed git commit and full inventory snapshot.
 
 ## Catalog manifest
 
@@ -43,11 +43,11 @@ Run the script locally or read CI artifacts; this report does not start containe
 
 ### Uncatalogued directories
 
-- `labs/web/Sayed_Khashana_REST_API_IDOR_CTF`
 - `labs/web/duckcorp-savegame`
 - `labs/web/duckdesk`
 - `labs/web/duckfleet`
 - `labs/web/duckmarket`
+- `labs/web/Sayed_Khashana_REST_API_IDOR_CTF`
 
 ### Experimental labs (not promoted)
 
