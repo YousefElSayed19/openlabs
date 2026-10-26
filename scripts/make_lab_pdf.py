@@ -197,8 +197,16 @@ def _break_long_run(match: re.Match[str]) -> str:
 
 def render_inline_code(text: str) -> str:
     """Render inline code verbatim while allowing a line break at separators."""
-    escaped = escape_latex_inline(text)
-    escaped = LONG_RUN_RE.sub(_break_long_run, escaped)
+    parts: list[str] = []
+    cursor = 0
+    for match in LONG_RUN_RE.finditer(text):
+        parts.append(escape_latex_inline(text[cursor:match.start()]))
+        chunks = [match.group(0)[i:i + LONG_RUN_CHUNK]
+                  for i in range(0, len(match.group(0)), LONG_RUN_CHUNK)]
+        parts.append(r"\allowbreak{}".join(escape_latex_inline(c) for c in chunks))
+        cursor = match.end()
+    parts.append(escape_latex_inline(text[cursor:]))
+    escaped = "".join(parts)
     escaped = escaped.replace("/", r"/\allowbreak{}")
     escaped = escaped.replace("-", r"-\allowbreak{}")
     escaped = escaped.replace(r"\_", r"\_\allowbreak{}")

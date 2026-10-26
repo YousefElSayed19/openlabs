@@ -1415,7 +1415,7 @@ Java.perform(() => {
 ### Hooking below the method, not at it
 When a target is inlined everywhere it is used, hooking the Java method is the wrong layer. Hooking the native call it eventually reaches (a JNI boundary, a libc function like `ptrace` or `readlink`, or an ART internal such as the interpreter's method-invocation entry point) catches every inlined copy at once, because the native layer those copies all route through was never inlined away.
 ```javascript
-const ptrace = Module.findExportByName('libc.so', 'ptrace');
+const ptrace = Process.getModuleByName('libc.so').getExportByName('ptrace');
 Interceptor.attach(ptrace, {
     onEnter(args) {
         // PTRACE_TRACEME is request 0; a self-trace call is a common

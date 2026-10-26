@@ -23,7 +23,7 @@ services:
     working_dir: /dist
     volumes:
       - ./bin/NexaWallet-debug.apk:/dist/NexaWallet-debug.apk:ro
-      - ./docs:/dist/docs:ro
+      - ./docs/player-briefing.mdx:/dist/player-briefing.mdx:ro
     ports:
       - "8090:8090"
     command: ["python3", "-m", "http.server", "8090"]
