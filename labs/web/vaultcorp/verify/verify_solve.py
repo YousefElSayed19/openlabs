@@ -226,10 +226,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except SystemExit as e:
-        input("\n[script finished — press Enter to close this window] ")
-        raise
-    else:
-        input("\n[script finished — press Enter to close this window] ")
+    main()

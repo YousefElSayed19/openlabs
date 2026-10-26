@@ -29,10 +29,10 @@ vulnerability root-cause writeup.
 ## Flag
 
 `flag_hash` (SHA-256, matches `../lab.yml`):
-`39a58dfd73f798ab8ea74bd4a2a9d4f2108eb8fe411ad7f2cd94734d645dc4a0`
+`f95a1894ac5384d0677fb251eeb64096aaa25e840cc72477e12de49b15d340cd`
 
 The flag is baked into the deployed image at build time
-(`docker-compose.yml`'s `FLAG` build arg) and is the same for every
+(a fixed `ARG` default in `app/Dockerfile`) and is the same for every
 tenant in a given deployment — see `challenge-design.mdx`, "Determinism
 and flag design."
 
@@ -155,9 +155,9 @@ support_login    [Status: 200, Size: ...]
 
 ![ffuf finding /support_login](images/image-2.png)
 
-#### Step 7 — Log in via `/support-login`
+#### Step 7 — Log in via `/support_login`
 
-Navigate to `/support-login`. A stripped-down form asks for a
+Navigate to `/support_login`. A stripped-down form asks for a
 **Reference ID** and **Access Token**.
 
 ```
@@ -354,7 +354,7 @@ Register (isolated tenant auto-created)
   ↓
 Profile page → /js/user-utils.js → XOR+Base64 decode → Admin id+token
   ↓
-ffuf directory brute-force → /support-login → Admin login
+ffuf directory brute-force → /support_login → Admin login
   ↓
 /admin/import → SSRF → WAF bypass (127.1) → port 5000
   ↓

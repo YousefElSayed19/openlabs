@@ -5,7 +5,6 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    container_name: vaultcorp
     networks:
       - internal_only
     ports:

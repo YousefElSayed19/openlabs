@@ -118,13 +118,12 @@ anything else in `Program.cs`.
 
 ```bash
 # 1. Build and start
-cd "Web CTF Full" && docker compose up --build -d
+cd labs/web/vaultcorp && docker compose up --build -d
 
 # 2. Run the automated end-to-end solve
 cd verify
 pip install requests
-python3 verify_solve.py --base-url http://localhost:5000 \
-    --expect-flag "$(cat ../lab.yml | grep -A0 ...)"   # or paste the known flag directly
+python3 verify_solve.py --base-url http://localhost:5000
 ```
 
 A successful run prints each of the 6 stages and the recovered flag, and

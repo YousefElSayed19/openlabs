@@ -80,12 +80,10 @@ A reviewer can independently confirm this lab without trusting any claim
 above, by running:
 
 ```bash
-cd "Web CTF Full"
-echo 'FLAG=duck{...}' > .env
+cd labs/web/vaultcorp
 docker compose up --build -d
 cd verify && pip install requests
-python3 verify_solve.py --base-url http://localhost:5000 \
-    --expect-flag duck{...}
+python3 verify_solve.py --base-url http://localhost:5000
 ```
 
 A `0` exit code and matching flag is sufficient acceptance evidence for
